@@ -2117,7 +2117,7 @@ generate_pixmap (MetaFrames *frames,
   meta_frames_paint_to_drawable (frames, frame, result, region,
                                  -rectangle.x, -rectangle.y);
 
-  gdk_region_destroy (region);
+  cairo_region_destroy (region);
 
   return result;
 }
@@ -2224,7 +2224,7 @@ clip_to_screen (cairo_region_t *region, MetaUIFrame *frame)
 
   tmp_region = gdk_region_rectangle (&frame_area);
   gdk_region_intersect (region, tmp_region);
-  gdk_region_destroy (tmp_region);
+  cairo_region_destroy (tmp_region);
 
   gdk_region_offset (region, - frame_area.x, - frame_area.y);
 }
@@ -2242,7 +2242,7 @@ subtract_from_region (cairo_region_t *region, GdkWindow *drawable,
 
   reg_rect = gdk_region_rectangle (&rect);
   gdk_region_subtract (region, reg_rect);
-  gdk_region_destroy (reg_rect);
+  cairo_region_destroy (reg_rect);
 }
 
 static void
@@ -2306,7 +2306,7 @@ meta_frames_expose_event (GtkWidget           *widget,
   clip_to_screen (region, frame);
   meta_frames_paint_to_drawable (frames, frame, frame->window, region, 0, 0);
 
-  gdk_region_destroy (region);
+  cairo_region_destroy (region);
   
   return TRUE;
 }
@@ -2463,7 +2463,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
       area.height = h;
       tmp_region = gdk_region_rectangle (&area);
       gdk_region_subtract (edges, tmp_region);
-      gdk_region_destroy (tmp_region);
+      cairo_region_destroy (tmp_region);
 
       /* Now draw remaining portion of region */
 
@@ -2510,7 +2510,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
         }
 
       g_free (areas);
-      gdk_region_destroy (edges);
+      cairo_region_destroy (edges);
 
     }
   else

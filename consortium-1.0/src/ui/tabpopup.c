@@ -498,13 +498,13 @@ display_entry (MetaTabPopup *popup,
       region = gdk_region_rectangle (&rect);
       inner_region = gdk_region_rectangle (&te->inner_rect);
       gdk_region_subtract (region, inner_region);
-      gdk_region_destroy (inner_region);
+      cairo_region_destroy (inner_region);
   
       gdk_window_shape_combine_region (window,
                                        region,
                                        0, 0);
 
-      gdk_region_destroy (region);
+      cairo_region_destroy (region);
   
       /* This should piss off gtk a bit, but we don't want to raise
        * above the tab popup.  So, instead of calling gtk_widget_show,
