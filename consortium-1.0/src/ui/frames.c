@@ -2241,7 +2241,7 @@ subtract_from_region (cairo_region_t *region, GdkWindow *drawable,
   rect.y = y;
 
   reg_rect = cairo_region_create_rectangle (&rect);
-  gdk_region_subtract (region, reg_rect);
+  cairo_region_subtract (region, reg_rect);
   cairo_region_destroy (reg_rect);
 }
 
@@ -2462,7 +2462,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
       area.width = w;
       area.height = h;
       tmp_region = cairo_region_create_rectangle (&area);
-      gdk_region_subtract (edges, tmp_region);
+      cairo_region_subtract (edges, tmp_region);
       cairo_region_destroy (tmp_region);
 
       /* Now draw remaining portion of region */

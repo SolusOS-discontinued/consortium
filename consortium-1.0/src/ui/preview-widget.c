@@ -570,7 +570,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
         }
     }
 
-  gdk_region_subtract (window_xregion, corners_xregion);
+  cairo_region_subtract (window_xregion, corners_xregion);
   cairo_region_destroy (corners_xregion);
 
   return window_xregion;

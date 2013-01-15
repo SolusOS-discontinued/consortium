@@ -497,7 +497,7 @@ display_entry (MetaTabPopup *popup,
   
       region = cairo_region_create_rectangle (&rect);
       inner_region = cairo_region_create_rectangle (&te->inner_rect);
-      gdk_region_subtract (region, inner_region);
+      cairo_region_subtract (region, inner_region);
       cairo_region_destroy (inner_region);
   
       gdk_window_shape_combine_region (window,
