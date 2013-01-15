@@ -2223,7 +2223,7 @@ clip_to_screen (cairo_region_t *region, MetaUIFrame *frame)
   cairo_region_translate (region, frame_area.x, frame_area.y);
 
   tmp_region = cairo_region_create_rectangle (&frame_area);
-  gdk_region_intersect (region, tmp_region);
+  cairo_region_intersect (region, tmp_region);
   cairo_region_destroy (tmp_region);
 
   cairo_region_translate (region, - frame_area.x, - frame_area.y);
