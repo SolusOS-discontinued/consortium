@@ -32,8 +32,8 @@ static void
 get_window_rect (const WnckWindowDisplayInfo *win,
                  int                    screen_width,
                  int                    screen_height,
-                 const GdkRectangle    *workspace_rect,
-                 GdkRectangle          *rect)
+                 const cairo_rectangle_int_t    *workspace_rect,
+                 cairo_rectangle_int_t          *rect)
 {
   double width_ratio, height_ratio;
   int x, y, width, height;
@@ -69,7 +69,7 @@ static void
 draw_window (GtkWidget                   *widget,
              GdkWindow                 *drawable,
              const WnckWindowDisplayInfo *win,
-             const GdkRectangle          *winrect,
+             const cairo_rectangle_int_t          *winrect,
              GtkStateType                state)
 {
   cairo_t *cr;
@@ -177,7 +177,7 @@ wnck_draw_workspace (GtkWidget                   *widget,
                      int                          n_windows)
 {
   int i;
-  GdkRectangle workspace_rect;
+  cairo_rectangle_int_t workspace_rect;
   GtkStateType state;
   cairo_t *cr;
 
@@ -213,7 +213,7 @@ wnck_draw_workspace (GtkWidget                   *widget,
   while (i < n_windows)
     {
       const WnckWindowDisplayInfo *win = &windows[i];
-      GdkRectangle winrect;
+      cairo_rectangle_int_t winrect;
       
       get_window_rect (win, screen_width,
                        screen_height, &workspace_rect, &winrect);

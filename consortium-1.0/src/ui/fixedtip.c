@@ -75,7 +75,7 @@ meta_fixed_tip_show (Display *xdisplay, int screen_number,
 
       {
         GdkScreen *gdk_screen;
-	GdkRectangle monitor;
+	cairo_rectangle_int_t monitor;
 	gint mon_num;
 
         gdk_screen = gdk_display_get_screen (gdk_display_get_default (),

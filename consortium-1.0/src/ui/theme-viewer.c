@@ -1052,7 +1052,7 @@ run_theme_benchmark (void)
 
 typedef struct
 {
-  GdkRectangle rect;
+  cairo_rectangle_int_t rect;
   const char *expr;
   int expected_x;
   int expected_y;

@@ -95,7 +95,7 @@ static void meta_frames_font_changed          (MetaFrames *frames);
 static void meta_frames_button_layout_changed (MetaFrames *frames);
 
 
-static GdkRectangle*    control_rect (MetaFrameControl   control,
+static cairo_rectangle_int_t*    control_rect (MetaFrameControl   control,
                                       MetaFrameGeometry *fgeom);
 static MetaFrameControl get_control  (MetaFrames        *frames,
                                       MetaUIFrame       *frame,
@@ -1168,7 +1168,7 @@ show_tip_now (MetaFrames *frames)
   if (tiptext)
     {
       MetaFrameGeometry fgeom;
-      GdkRectangle *rect;
+      cairo_rectangle_int_t *rect;
       int dx, dy;
       int screen_number;
       
@@ -1234,7 +1234,7 @@ redraw_control (MetaFrames *frames,
                 MetaFrameControl control)
 {
   MetaFrameGeometry fgeom;
-  GdkRectangle *rect;
+  cairo_rectangle_int_t *rect;
   
   meta_frames_calc_geometry (frames, frame, &fgeom);
 
@@ -1502,7 +1502,7 @@ meta_frames_button_press_event (GtkWidget      *widget,
       if (op == META_GRAB_OP_CLICKING_MENU)
         {
           MetaFrameGeometry fgeom;
-          GdkRectangle *rect;
+          cairo_rectangle_int_t *rect;
           int dx, dy;
           
           meta_frames_calc_geometry (frames, frame, &fgeom);
@@ -2098,7 +2098,7 @@ generate_pixmap (MetaFrames *frames,
                  MetaUIFrame *frame,
                  MetaRectangle rect)
 {
-  GdkRectangle rectangle;
+  cairo_rectangle_int_t rectangle;
   cairo_region_t *region;
   GdkPixmap *result;
 
@@ -2203,8 +2203,8 @@ populate_cache (MetaFrames *frames,
 static void
 clip_to_screen (cairo_region_t *region, MetaUIFrame *frame)
 {
-  GdkRectangle frame_area;
-  GdkRectangle screen_area = { 0, 0, 0, 0 };
+  cairo_rectangle_int_t frame_area;
+  cairo_rectangle_int_t screen_area = { 0, 0, 0, 0 };
   cairo_region_t *tmp_region;
   
   /* Chop off stuff outside the screen; this optimization
@@ -2233,7 +2233,7 @@ static void
 subtract_from_region (cairo_region_t *region, GdkWindow *drawable,
                       gint x, gint y)
 {
-  GdkRectangle rect;
+  cairo_rectangle_int_t rect;
   cairo_region_t *reg_rect;
 
   gdk_drawable_get_size (drawable, &rect.width, &rect.height);
@@ -2436,7 +2436,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
     {
       /* A window; happens about 2/3 of the time */
 
-      GdkRectangle area, *areas;
+      cairo_rectangle_int_t area, *areas;
       int n_areas;
       int screen_width, screen_height;
       cairo_region_t *edges, *tmp_region;
@@ -2623,11 +2623,11 @@ meta_frames_leave_notify_event      (GtkWidget           *widget,
   return TRUE;
 }
 
-static GdkRectangle*
+static cairo_rectangle_int_t*
 control_rect (MetaFrameControl control,
               MetaFrameGeometry *fgeom)
 {
-  GdkRectangle *rect;
+  cairo_rectangle_int_t *rect;
   
   rect = NULL;
   switch (control)
@@ -2701,7 +2701,7 @@ get_control (MetaFrames *frames,
   MetaFrameGeometry fgeom;
   MetaFrameFlags flags;
   gboolean has_vert, has_horiz;
-  GdkRectangle client;
+  cairo_rectangle_int_t client;
   
   meta_frames_calc_geometry (frames, frame, &fgeom);
 

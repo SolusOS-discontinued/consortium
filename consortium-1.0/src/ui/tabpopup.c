@@ -47,8 +47,8 @@ struct _TabEntry
   char            *title;
   GdkPixbuf       *icon, *dimmed_icon;
   GtkWidget       *widget;
-  GdkRectangle     rect;
-  GdkRectangle     inner_rect;
+  cairo_rectangle_int_t     rect;
+  cairo_rectangle_int_t     inner_rect;
   guint blank : 1;
 };
 
@@ -455,7 +455,7 @@ static void
 display_entry (MetaTabPopup *popup,
                TabEntry     *te)
 {
-  GdkRectangle rect;
+  cairo_rectangle_int_t rect;
   cairo_region_t *region;
   cairo_region_t *inner_region;
   GdkWindow *window;

@@ -158,9 +158,9 @@ struct _MetaFrameLayout
 struct _MetaButtonSpace
 {
   /** The screen area where the button's image is drawn */
-  GdkRectangle visible;
+  cairo_rectangle_int_t visible;
   /** The screen area where the button can be activated by clicking */
-  GdkRectangle clickable;
+  cairo_rectangle_int_t clickable;
 };
 
 /**
@@ -176,7 +176,7 @@ struct _MetaFrameGeometry
   int width;
   int height;  
 
-  GdkRectangle title_rect;
+  cairo_rectangle_int_t title_rect;
 
   int left_titlebar_edge;
   int right_titlebar_edge;
@@ -185,7 +185,7 @@ struct _MetaFrameGeometry
 
   /* used for a memset hack */
 #define ADDRESS_OF_BUTTON_RECTS(fgeom) (((char*)(fgeom)) + G_STRUCT_OFFSET (MetaFrameGeometry, close_rect))
-#define LENGTH_OF_BUTTON_RECTS (G_STRUCT_OFFSET (MetaFrameGeometry, right_right_background) + sizeof (GdkRectangle) - G_STRUCT_OFFSET (MetaFrameGeometry, close_rect))
+#define LENGTH_OF_BUTTON_RECTS (G_STRUCT_OFFSET (MetaFrameGeometry, right_right_background) + sizeof (cairo_rectangle_int_t) - G_STRUCT_OFFSET (MetaFrameGeometry, close_rect))
   
   /* The button rects (if changed adjust memset hack) */
   MetaButtonSpace close_rect;
@@ -200,12 +200,12 @@ struct _MetaFrameGeometry
   MetaButtonSpace unstick_rect;
 
 #define MAX_MIDDLE_BACKGROUNDS (MAX_BUTTONS_PER_CORNER - 2)
-  GdkRectangle left_left_background;
-  GdkRectangle left_middle_backgrounds[MAX_MIDDLE_BACKGROUNDS];
-  GdkRectangle left_right_background;
-  GdkRectangle right_left_background;
-  GdkRectangle right_middle_backgrounds[MAX_MIDDLE_BACKGROUNDS];
-  GdkRectangle right_right_background;
+  cairo_rectangle_int_t left_left_background;
+  cairo_rectangle_int_t left_middle_backgrounds[MAX_MIDDLE_BACKGROUNDS];
+  cairo_rectangle_int_t left_right_background;
+  cairo_rectangle_int_t right_left_background;
+  cairo_rectangle_int_t right_middle_backgrounds[MAX_MIDDLE_BACKGROUNDS];
+  cairo_rectangle_int_t right_right_background;
   /* End of button rects (if changed adjust memset hack) */
 
   /* Saved button layout */
@@ -901,7 +901,7 @@ void           meta_draw_op_free (MetaDrawOp          *op);
 void           meta_draw_op_draw (const MetaDrawOp    *op,
                                   GtkWidget           *widget,
                                   GdkWindow         *drawable,
-                                  const GdkRectangle  *clip,
+                                  const cairo_rectangle_int_t  *clip,
                                   const MetaDrawInfo  *info,
                                   /* logical region being drawn */
                                   MetaRectangle        logical_region);
@@ -910,7 +910,7 @@ void           meta_draw_op_draw_with_style (const MetaDrawOp    *op,
                                              GtkStyle            *style_gtk,
                                              GtkWidget           *widget,
                                              GdkWindow         *drawable,
-                                             const GdkRectangle  *clip,
+                                             const cairo_rectangle_int_t  *clip,
                                              const MetaDrawInfo  *info,
                                              /* logical region being drawn */
                                              MetaRectangle        logical_region);
@@ -921,14 +921,14 @@ void            meta_draw_op_list_unref (MetaDrawOpList       *op_list);
 void            meta_draw_op_list_draw  (const MetaDrawOpList *op_list,
                                          GtkWidget            *widget,
                                          GdkWindow          *drawable,
-                                         const GdkRectangle   *clip,
+                                         const cairo_rectangle_int_t   *clip,
                                          const MetaDrawInfo   *info,
                                          MetaRectangle         rect);
 void            meta_draw_op_list_draw_with_style  (const MetaDrawOpList *op_list,
                                                     GtkStyle             *style_gtk,
                                                     GtkWidget            *widget,
                                                     GdkWindow          *drawable,
-                                                    const GdkRectangle   *clip,
+                                                    const cairo_rectangle_int_t   *clip,
                                                     const MetaDrawInfo   *info,
                                                     MetaRectangle         rect);
 void           meta_draw_op_list_append (MetaDrawOpList       *op_list,
@@ -961,7 +961,7 @@ void meta_frame_style_draw (MetaFrameStyle          *style,
                             GdkWindow             *drawable,
                             int                      x_offset,
                             int                      y_offset,
-                            const GdkRectangle      *clip,
+                            const cairo_rectangle_int_t      *clip,
                             const MetaFrameGeometry *fgeom,
                             int                      client_width,
                             int                      client_height,
@@ -978,7 +978,7 @@ void meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                        GdkWindow             *drawable,
                                        int                      x_offset,
                                        int                      y_offset,
-                                       const GdkRectangle      *clip,
+                                       const cairo_rectangle_int_t      *clip,
                                        const MetaFrameGeometry *fgeom,
                                        int                      client_width,
                                        int                      client_height,
@@ -1024,7 +1024,7 @@ double meta_theme_get_title_scale (MetaTheme     *theme,
 void meta_theme_draw_frame (MetaTheme              *theme,
                             GtkWidget              *widget,
                             GdkWindow            *drawable,
-                            const GdkRectangle     *clip,
+                            const cairo_rectangle_int_t     *clip,
                             int                     x_offset,
                             int                     y_offset,
                             MetaFrameType           type,
@@ -1041,7 +1041,7 @@ void meta_theme_draw_frame (MetaTheme              *theme,
 void meta_theme_draw_frame_by_name (MetaTheme              *theme,
                                     GtkWidget              *widget,
                                     GdkWindow            *drawable,
-                                    const GdkRectangle     *clip,
+                                    const cairo_rectangle_int_t     *clip,
                                     int                     x_offset,
                                     int                     y_offset,
                                     const gchar             *style_name,
@@ -1059,7 +1059,7 @@ void meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                        GtkStyle               *style_gtk,
                                        GtkWidget              *widget,
                                        GdkWindow            *drawable,
-                                       const GdkRectangle     *clip,
+                                       const cairo_rectangle_int_t     *clip,
                                        int                     x_offset,
                                        int                     y_offset,
                                        MetaFrameType           type,

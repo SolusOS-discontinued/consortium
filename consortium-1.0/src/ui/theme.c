@@ -579,7 +579,7 @@ rect_for_function (MetaFrameGeometry *fgeom,
 
 static gboolean
 strip_button (MetaButtonSpace *func_rects[MAX_BUTTONS_PER_CORNER],
-              GdkRectangle    *bg_rects[MAX_BUTTONS_PER_CORNER],
+              cairo_rectangle_int_t    *bg_rects[MAX_BUTTONS_PER_CORNER],
               int             *n_rects,
               MetaButtonSpace *to_strip)
 {
@@ -636,9 +636,9 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
    */
   MetaButtonSpace *left_func_rects[MAX_BUTTONS_PER_CORNER];
   MetaButtonSpace *right_func_rects[MAX_BUTTONS_PER_CORNER];
-  GdkRectangle *left_bg_rects[MAX_BUTTONS_PER_CORNER];
+  cairo_rectangle_int_t *left_bg_rects[MAX_BUTTONS_PER_CORNER];
   gboolean left_buttons_has_spacer[MAX_BUTTONS_PER_CORNER];
-  GdkRectangle *right_bg_rects[MAX_BUTTONS_PER_CORNER];
+  cairo_rectangle_int_t *right_bg_rects[MAX_BUTTONS_PER_CORNER];
   gboolean right_buttons_has_spacer[MAX_BUTTONS_PER_CORNER];
   
   meta_frame_layout_get_borders (layout, text_height,
@@ -3438,7 +3438,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
                             GtkStyle            *style_gtk,
                             GtkWidget           *widget,
                             GdkWindow         *drawable,
-                            const GdkRectangle  *clip,
+                            const cairo_rectangle_int_t  *clip,
                             const MetaDrawInfo  *info,
                             MetaRectangle        rect,
                             MetaPositionExprEnv *env)
@@ -3725,7 +3725,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
                          drawable,
                          op->data.gtk_arrow.state,
                          op->data.gtk_arrow.shadow,
-                         (GdkRectangle*) clip,
+                         (cairo_rectangle_int_t*) clip,
                          widget,
                          "consortium",
                          op->data.gtk_arrow.arrow,
@@ -3747,7 +3747,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
                        drawable,
                        op->data.gtk_box.state,
                        op->data.gtk_box.shadow,
-                       (GdkRectangle*) clip,
+                       (cairo_rectangle_int_t*) clip,
                        widget,
                        "consortium",
                        rx, ry, rwidth, rheight);
@@ -3765,7 +3765,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
         gtk_paint_vline (style_gtk,
                          drawable,
                          op->data.gtk_vline.state,
-                         (GdkRectangle*) clip,
+                         (cairo_rectangle_int_t*) clip,
                          widget,
                          "consortium",
                          ry1, ry2, rx);
@@ -3831,7 +3831,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
       {
         int rx, ry, rwidth, rheight;
         int tile_xoffset, tile_yoffset; 
-        GdkRectangle new_clip;
+        cairo_rectangle_int_t new_clip;
         MetaRectangle tile;
         
         rx = parse_x_position_unchecked (op->data.tile.x, env);
@@ -3844,7 +3844,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
         new_clip.width = rwidth;
         new_clip.height = rheight;
 
-        if (clip == NULL || gdk_rectangle_intersect ((GdkRectangle*)clip, &new_clip,
+        if (clip == NULL || gdk_rectangle_intersect ((cairo_rectangle_int_t*)clip, &new_clip,
                                                      &new_clip))
           {
             tile_xoffset = parse_x_position_unchecked (op->data.tile.tile_xoffset, env);
@@ -3885,7 +3885,7 @@ meta_draw_op_draw_with_style (const MetaDrawOp    *op,
                               GtkStyle            *style_gtk,
                               GtkWidget           *widget,
                               GdkWindow         *drawable,
-                              const GdkRectangle  *clip,
+                              const cairo_rectangle_int_t  *clip,
                               const MetaDrawInfo  *info,
                               MetaRectangle        logical_region)
 {
@@ -3905,7 +3905,7 @@ void
 meta_draw_op_draw (const MetaDrawOp    *op,
                    GtkWidget           *widget,
                    GdkWindow         *drawable,
-                   const GdkRectangle  *clip,
+                   const cairo_rectangle_int_t  *clip,
                    const MetaDrawInfo  *info,
                    MetaRectangle        logical_region)
 {
@@ -3965,13 +3965,13 @@ meta_draw_op_list_draw_with_style  (const MetaDrawOpList *op_list,
                                     GtkStyle             *style_gtk,
                                     GtkWidget            *widget,
                                     GdkWindow          *drawable,
-                                    const GdkRectangle   *clip,
+                                    const cairo_rectangle_int_t   *clip,
                                     const MetaDrawInfo   *info,
                                     MetaRectangle         rect)
 {
   int i;
-  GdkRectangle active_clip;
-  GdkRectangle orig_clip;
+  cairo_rectangle_int_t active_clip;
+  cairo_rectangle_int_t orig_clip;
   MetaPositionExprEnv env;
 
   g_return_if_fail (style_gtk->colormap == gdk_drawable_get_colormap (drawable));
@@ -4034,7 +4034,7 @@ void
 meta_draw_op_list_draw  (const MetaDrawOpList *op_list,
                          GtkWidget            *widget,
                          GdkWindow          *drawable,
-                         const GdkRectangle   *clip,
+                         const cairo_rectangle_int_t   *clip,
                          const MetaDrawInfo   *info,
                          MetaRectangle         rect)
 
@@ -4328,7 +4328,7 @@ static void
 button_rect (MetaButtonType           type,
              const MetaFrameGeometry *fgeom,
              int                      middle_background_offset,
-             GdkRectangle            *rect)
+             cairo_rectangle_int_t            *rect)
 {
   switch (type)
     {
@@ -4409,7 +4409,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GdkWindow             *drawable,
                                   int                      x_offset,
                                   int                      y_offset,
-                                  const GdkRectangle      *clip,
+                                  const cairo_rectangle_int_t      *clip,
                                   const MetaFrameGeometry *fgeom,
                                   int                      client_width,
                                   int                      client_height,
@@ -4420,12 +4420,12 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GdkPixbuf               *icon)
 {
   int i, j;
-  GdkRectangle titlebar_rect;
-  GdkRectangle left_titlebar_edge;
-  GdkRectangle right_titlebar_edge;
-  GdkRectangle bottom_titlebar_edge;
-  GdkRectangle top_titlebar_edge;
-  GdkRectangle left_edge, right_edge, bottom_edge;
+  cairo_rectangle_int_t titlebar_rect;
+  cairo_rectangle_int_t left_titlebar_edge;
+  cairo_rectangle_int_t right_titlebar_edge;
+  cairo_rectangle_int_t bottom_titlebar_edge;
+  cairo_rectangle_int_t top_titlebar_edge;
+  cairo_rectangle_int_t left_edge, right_edge, bottom_edge;
   PangoRectangle extents;
   MetaDrawInfo draw_info;
   
@@ -4486,8 +4486,8 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
   i = 0;
   while (i < META_FRAME_PIECE_LAST)
     {
-      GdkRectangle rect;
-      GdkRectangle combined_clip;
+      cairo_rectangle_int_t rect;
+      cairo_rectangle_int_t combined_clip;
       
       switch ((MetaFramePiece) i)
         {
@@ -4560,7 +4560,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
       if (clip == NULL)
         combined_clip = rect;
       else
-        gdk_rectangle_intersect ((GdkRectangle*) clip, /* const cast */
+        gdk_rectangle_intersect ((cairo_rectangle_int_t*) clip, /* const cast */
                                  &rect,
                                  &combined_clip);
 
@@ -4611,7 +4611,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
               if (clip == NULL)
                 combined_clip = rect;
               else
-                gdk_rectangle_intersect ((GdkRectangle*) clip, /* const cast */
+                gdk_rectangle_intersect ((cairo_rectangle_int_t*) clip, /* const cast */
                                          &rect,
                                          &combined_clip);
               
@@ -4663,7 +4663,7 @@ meta_frame_style_draw (MetaFrameStyle          *style,
                        GdkWindow             *drawable,
                        int                      x_offset,
                        int                      y_offset,
-                       const GdkRectangle      *clip,
+                       const cairo_rectangle_int_t      *clip,
                        const MetaFrameGeometry *fgeom,
                        int                      client_width,
                        int                      client_height,
@@ -5231,7 +5231,7 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                   GtkStyle               *style_gtk,
                                   GtkWidget              *widget,
                                   GdkWindow            *drawable,
-                                  const GdkRectangle     *clip,
+                                  const cairo_rectangle_int_t     *clip,
                                   int                     x_offset,
                                   int                     y_offset,
                                   MetaFrameType           type,
@@ -5282,7 +5282,7 @@ void
 meta_theme_draw_frame (MetaTheme              *theme,
                        GtkWidget              *widget,
                        GdkWindow            *drawable,
-                       const GdkRectangle     *clip,
+                       const cairo_rectangle_int_t     *clip,
                        int                     x_offset,
                        int                     y_offset,
                        MetaFrameType           type,
@@ -5308,7 +5308,7 @@ void
 meta_theme_draw_frame_by_name (MetaTheme              *theme,
                                GtkWidget              *widget,
                                GdkWindow            *drawable,
-                               const GdkRectangle     *clip,
+                               const cairo_rectangle_int_t     *clip,
                                int                     x_offset,
                                int                     y_offset,
                                const gchar             *style_name,
@@ -6512,7 +6512,7 @@ draw_bg_solid_composite (const MetaTextureSpec *bg,
                          double                 alpha,
                          GtkWidget             *widget,
                          GdkWindow           *drawable,
-                         const GdkRectangle    *clip,
+                         const cairo_rectangle_int_t    *clip,
                          MetaTextureDrawMode    mode,
                          double                 xalign,
                          double                 yalign,
@@ -6619,7 +6619,7 @@ draw_bg_gradient_composite (const MetaTextureSpec *bg,
                             double                 alpha,
                             GtkWidget             *widget,
                             GdkWindow           *drawable,
-                            const GdkRectangle    *clip,
+                            const cairo_rectangle_int_t    *clip,
                             MetaTextureDrawMode    mode,
                             double                 xalign,
                             double                 yalign,
