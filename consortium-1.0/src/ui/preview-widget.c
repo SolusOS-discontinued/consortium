@@ -477,7 +477,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
 
   flags = (META_PREVIEW (preview)->flags);
 
-  window_xregion = gdk_region_new ();
+  window_xregion = cairo_region_new ();
 
   xrect.x = 0;
   xrect.y = 0;
@@ -495,7 +495,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
 
   fgeom = frame_style->layout;
 
-  corners_xregion = gdk_region_new ();
+  corners_xregion = cairo_region_new ();
 
   if (fgeom->top_left_corner_rounded_radius != 0)
     {
