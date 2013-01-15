@@ -495,8 +495,8 @@ display_entry (MetaTabPopup *popup,
       gdk_window_set_background (window,
                                  &gtk_widget_get_style (popup->outline_window)->black);
   
-      region = gdk_region_rectangle (&rect);
-      inner_region = gdk_region_rectangle (&te->inner_rect);
+      region = cairo_region_create_rectangle (&rect);
+      inner_region = cairo_region_create_rectangle (&te->inner_rect);
       gdk_region_subtract (region, inner_region);
       cairo_region_destroy (inner_region);
   
