@@ -484,7 +484,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
   xrect.width = new_window_width;
   xrect.height = new_window_height;
 
-  gdk_region_union_with_rect (window_xregion, &xrect);
+  cairo_region_union_rectangle (window_xregion, &xrect);
 
   if (preview->theme == NULL)
     return window_xregion;
@@ -512,7 +512,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
           xrect.width = width;
           xrect.height = 1;
 
-          gdk_region_union_with_rect (corners_xregion, &xrect);
+          cairo_region_union_rectangle (corners_xregion, &xrect);
         }
     }
 
@@ -530,7 +530,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
           xrect.width = width;
           xrect.height = 1;
 
-          gdk_region_union_with_rect (corners_xregion, &xrect);
+          cairo_region_union_rectangle (corners_xregion, &xrect);
         }
     }
 
@@ -548,7 +548,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
           xrect.width = width;
           xrect.height = 1;
 
-          gdk_region_union_with_rect (corners_xregion, &xrect);
+          cairo_region_union_rectangle (corners_xregion, &xrect);
         }
     }
 
@@ -566,7 +566,7 @@ meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint 
           xrect.width = width;
           xrect.height = 1;
 
-          gdk_region_union_with_rect (corners_xregion, &xrect);
+          cairo_region_union_rectangle (corners_xregion, &xrect);
         }
     }
 
