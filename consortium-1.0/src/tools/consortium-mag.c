@@ -191,7 +191,7 @@ key_press (GtkWidget   *invisible,
            GdkEventKey *event,
            gpointer     data)
 {  
-  if (event->keyval == GDK_Escape)
+  if (event->keyval == GDK_KEY_Escape)
     {
       shutdown_grab ();
 
