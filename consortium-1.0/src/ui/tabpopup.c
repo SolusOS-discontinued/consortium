@@ -456,8 +456,8 @@ display_entry (MetaTabPopup *popup,
                TabEntry     *te)
 {
   GdkRectangle rect;
-  GdkRegion *region;
-  GdkRegion *inner_region;
+  cairo_region_t *region;
+  cairo_region_t *inner_region;
   GdkWindow *window;
 
   

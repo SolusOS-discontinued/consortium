@@ -74,7 +74,7 @@ static void meta_frames_attach_style (MetaFrames  *frames,
 static void meta_frames_paint_to_drawable (MetaFrames   *frames,
                                            MetaUIFrame  *frame,
                                            GdkWindow  *drawable,
-                                           GdkRegion    *region,
+                                           cairo_region_t    *region,
                                            int           x_offset,
                                            int           y_offset);
 
@@ -2099,7 +2099,7 @@ generate_pixmap (MetaFrames *frames,
                  MetaRectangle rect)
 {
   GdkRectangle rectangle;
-  GdkRegion *region;
+  cairo_region_t *region;
   GdkPixmap *result;
 
   rectangle.x = rect.x;
@@ -2201,11 +2201,11 @@ populate_cache (MetaFrames *frames,
 }
 
 static void
-clip_to_screen (GdkRegion *region, MetaUIFrame *frame)
+clip_to_screen (cairo_region_t *region, MetaUIFrame *frame)
 {
   GdkRectangle frame_area;
   GdkRectangle screen_area = { 0, 0, 0, 0 };
-  GdkRegion *tmp_region;
+  cairo_region_t *tmp_region;
   
   /* Chop off stuff outside the screen; this optimization
    * is crucial to handle huge client windows,
@@ -2230,11 +2230,11 @@ clip_to_screen (GdkRegion *region, MetaUIFrame *frame)
 }
 
 static void
-subtract_from_region (GdkRegion *region, GdkWindow *drawable,
+subtract_from_region (cairo_region_t *region, GdkWindow *drawable,
                       gint x, gint y)
 {
   GdkRectangle rect;
-  GdkRegion *reg_rect;
+  cairo_region_t *reg_rect;
 
   gdk_drawable_get_size (drawable, &rect.width, &rect.height);
   rect.x = x;
@@ -2248,7 +2248,7 @@ subtract_from_region (GdkRegion *region, GdkWindow *drawable,
 static void
 cached_pixels_draw (CachedPixels *pixels,
                     GdkWindow *window,
-                    GdkRegion *region)
+                    cairo_region_t *region)
 {
   cairo_t *cr;
   int i;
@@ -2279,7 +2279,7 @@ meta_frames_expose_event (GtkWidget           *widget,
 {
   MetaUIFrame *frame;
   MetaFrames *frames;
-  GdkRegion *region;
+  cairo_region_t *region;
   CachedPixels *pixels;
 
   frames = META_FRAMES (widget);
@@ -2320,7 +2320,7 @@ static void
 meta_frames_paint_to_drawable (MetaFrames   *frames,
                                MetaUIFrame  *frame,
                                GdkWindow  *drawable,
-                               GdkRegion    *region,
+                               cairo_region_t    *region,
                                int           x_offset,
                                int           y_offset)
 {
@@ -2439,7 +2439,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
       GdkRectangle area, *areas;
       int n_areas;
       int screen_width, screen_height;
-      GdkRegion *edges, *tmp_region;
+      cairo_region_t *edges, *tmp_region;
       int top, bottom, left, right;
  
       /* Repaint each side of the frame */

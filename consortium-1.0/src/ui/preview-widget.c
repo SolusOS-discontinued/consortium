@@ -464,11 +464,11 @@ meta_preview_get_mini_icon (void)
   return default_icon;
 }
 
-GdkRegion *
+cairo_region_t *
 meta_preview_get_clip_region (MetaPreview *preview, gint new_window_width, gint new_window_height)
 {
   GdkRectangle xrect;
-  GdkRegion *corners_xregion, *window_xregion;
+  cairo_region_t *corners_xregion, *window_xregion;
   gint flags;
   MetaFrameLayout *fgeom;
   MetaFrameStyle *frame_style;
