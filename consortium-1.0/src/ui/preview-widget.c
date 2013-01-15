@@ -34,8 +34,17 @@ static void     meta_preview_size_request  (GtkWidget        *widget,
                                             GtkRequisition   *req);
 static void     meta_preview_size_allocate (GtkWidget        *widget,
                                             GtkAllocation    *allocation);
-static gboolean meta_preview_expose        (GtkWidget        *widget,
-                                            GdkEventExpose   *event);
+static void
+meta_preview_get_preferred_width (GtkWidget *widget,   
+                                  gint      *minimal_width,
+                                  gint      *natural_width);
+static void
+meta_preview_get_preferred_height (GtkWidget *widget,   
+                                  gint      *minimal_height,
+                                  gint      *natural_height);
+
+static gboolean meta_preview_draw        (GtkWidget        *widget,
+                                            cairo_t         *cr);
 static void     meta_preview_finalize      (GObject          *object);
 
 static GtkWidgetClass *parent_class;
@@ -53,8 +62,9 @@ meta_preview_class_init (MetaPreviewClass *class)
 
   gobject_class->finalize = meta_preview_finalize;
 
-  widget_class->expose_event = meta_preview_expose;
-  widget_class->size_request = meta_preview_size_request;
+  widget_class->draw = meta_preview_draw;
+  widget_class->get_preferred_height = meta_preview_get_preferred_height;
+  widget_class->get_preferred_width = meta_preview_get_preferred_width;
   widget_class->size_allocate = meta_preview_size_allocate;
 }
 
@@ -189,14 +199,16 @@ ensure_info (MetaPreview *preview)
 }
 
 static gboolean
-meta_preview_expose (GtkWidget      *widget,
-                     GdkEventExpose *event)
+meta_preview_draw (GtkWidget      *widget,
+                     cairo_t      *cr)
 {
   MetaPreview *preview;
   GtkAllocation allocation;
   int border_width;
   int client_width;
   int client_height;
+  cairo_rectangle_int_t *area;
+
   MetaButtonState button_states[META_BUTTON_TYPE_LAST] =
   {
     META_BUTTON_STATE_NORMAL,
@@ -206,7 +218,6 @@ meta_preview_expose (GtkWidget      *widget,
   };
   
   g_return_val_if_fail (META_IS_PREVIEW (widget), FALSE);
-  g_return_val_if_fail (event != NULL, FALSE);
 
   preview = META_PREVIEW (widget);
 
@@ -217,6 +228,9 @@ meta_preview_expose (GtkWidget      *widget,
   gtk_widget_get_allocation (widget, &allocation);
   client_width = allocation.width - preview->left_width - preview->right_width - border_width * 2;
   client_height = allocation.height - preview->top_height - preview->bottom_height - border_width * 2;
+
+  area->width = allocation.width;
+  area->height = allocation.height;
 
   if (client_width < 0)
     client_width = 1;
@@ -230,7 +244,7 @@ meta_preview_expose (GtkWidget      *widget,
       meta_theme_draw_frame (preview->theme,
                              widget,
                              gtk_widget_get_window (widget),
-                             &event->area,
+                             area,
                              allocation.x + border_width,
                              allocation.y + border_width,
                              preview->type,
@@ -245,7 +259,31 @@ meta_preview_expose (GtkWidget      *widget,
     }
 
   /* draw child */
-  return GTK_WIDGET_CLASS (parent_class)->expose_event (widget, event);
+  return GTK_WIDGET_CLASS (parent_class)->draw (widget, cr);
+}
+
+static void
+meta_preview_get_preferred_width (GtkWidget *widget,   
+                                  gint      *minimal_width,
+                                  gint      *natural_width)
+{
+  GtkRequisition requisition;
+
+  meta_preview_size_request (widget, &requisition);
+
+  *minimal_width = *natural_width = requisition.width;
+}
+
+static void
+meta_preview_get_preferred_height (GtkWidget *widget,   
+                                  gint      *minimal_height,
+                                  gint      *natural_height)
+{
+  GtkRequisition requisition;
+
+  meta_preview_size_request (widget, &requisition);
+
+  *minimal_height = *natural_height = requisition.height;
 }
 
 static void
