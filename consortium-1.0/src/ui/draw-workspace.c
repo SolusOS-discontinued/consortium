@@ -67,7 +67,7 @@ get_window_rect (const WnckWindowDisplayInfo *win,
 
 static void
 draw_window (GtkWidget                   *widget,
-             GdkDrawable                 *drawable,
+             GdkWindow                 *drawable,
              const WnckWindowDisplayInfo *win,
              const GdkRectangle          *winrect,
              GtkStateType                state)
@@ -164,7 +164,7 @@ draw_window (GtkWidget                   *widget,
 
 void
 wnck_draw_workspace (GtkWidget                   *widget,
-                     GdkDrawable                 *drawable,
+                     GdkWindow                 *drawable,
                      int                          x,
                      int                          y,
                      int                          width,

@@ -23,13 +23,13 @@
 #include "gradient.h"
 #include <gtk/gtk.h>
 
-typedef void (* RenderGradientFunc) (GdkDrawable *drawable,
+typedef void (* RenderGradientFunc) (GdkWindow *drawable,
                                      cairo_t     *cr,
                                      int          width,
                                      int          height);
 
 static void
-draw_checkerboard (GdkDrawable *drawable,
+draw_checkerboard (GdkWindow *drawable,
                    int          width,
                    int          height)
 {
@@ -82,7 +82,7 @@ draw_checkerboard (GdkDrawable *drawable,
 }
 
 static void
-render_simple (GdkDrawable *drawable,
+render_simple (GdkWindow *drawable,
                cairo_t     *cr,
                int width, int height,
                MetaGradientType type,
@@ -126,7 +126,7 @@ render_simple (GdkDrawable *drawable,
 }
 
 static void
-render_vertical_func (GdkDrawable *drawable,
+render_vertical_func (GdkWindow *drawable,
                       cairo_t *cr,
                       int width, int height)
 {
@@ -134,7 +134,7 @@ render_vertical_func (GdkDrawable *drawable,
 }
 
 static void
-render_horizontal_func (GdkDrawable *drawable,
+render_horizontal_func (GdkWindow *drawable,
                         cairo_t *cr,
                         int width, int height)
 {
@@ -142,7 +142,7 @@ render_horizontal_func (GdkDrawable *drawable,
 }
 
 static void
-render_diagonal_func (GdkDrawable *drawable,
+render_diagonal_func (GdkWindow *drawable,
                       cairo_t *cr,
                       int width, int height)
 {
@@ -150,7 +150,7 @@ render_diagonal_func (GdkDrawable *drawable,
 }
 
 static void
-render_diagonal_alpha_func (GdkDrawable *drawable,
+render_diagonal_alpha_func (GdkWindow *drawable,
                             cairo_t *cr,
                             int width, int height)
 {
@@ -158,7 +158,7 @@ render_diagonal_alpha_func (GdkDrawable *drawable,
 }
 
 static void
-render_multi (GdkDrawable *drawable,
+render_multi (GdkWindow *drawable,
               cairo_t     *cr,
               int width, int height,
               MetaGradientType type)
@@ -186,7 +186,7 @@ render_multi (GdkDrawable *drawable,
 }
 
 static void
-render_vertical_multi_func (GdkDrawable *drawable,
+render_vertical_multi_func (GdkWindow *drawable,
                             cairo_t *cr,
                             int width, int height)
 {
@@ -194,7 +194,7 @@ render_vertical_multi_func (GdkDrawable *drawable,
 }
 
 static void
-render_horizontal_multi_func (GdkDrawable *drawable,
+render_horizontal_multi_func (GdkWindow *drawable,
                               cairo_t *cr,
                               int width, int height)
 {
@@ -202,7 +202,7 @@ render_horizontal_multi_func (GdkDrawable *drawable,
 }
 
 static void
-render_diagonal_multi_func (GdkDrawable *drawable,
+render_diagonal_multi_func (GdkWindow *drawable,
                             cairo_t *cr,
                             int width, int height)
 {
@@ -210,7 +210,7 @@ render_diagonal_multi_func (GdkDrawable *drawable,
 }
 
 static void
-render_interwoven_func (GdkDrawable *drawable,
+render_interwoven_func (GdkWindow *drawable,
                         cairo_t     *cr,
                         int width, int height)
 {

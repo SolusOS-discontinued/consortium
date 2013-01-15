@@ -73,7 +73,7 @@ static void meta_frames_attach_style (MetaFrames  *frames,
 
 static void meta_frames_paint_to_drawable (MetaFrames   *frames,
                                            MetaUIFrame  *frame,
-                                           GdkDrawable  *drawable,
+                                           GdkWindow  *drawable,
                                            GdkRegion    *region,
                                            int           x_offset,
                                            int           y_offset);
@@ -2006,7 +2006,7 @@ meta_frames_destroy_event           (GtkWidget           *widget,
 #if !GTK_CHECK_VERSION(2,21,6)
 /* Copied from GDK */
 static cairo_surface_t *
-_gdk_drawable_ref_cairo_surface (GdkDrawable *drawable)
+_gdk_drawable_ref_cairo_surface (GdkWindow *drawable)
 {
   g_return_val_if_fail (GDK_IS_DRAWABLE (drawable), NULL);
 
@@ -2230,7 +2230,7 @@ clip_to_screen (GdkRegion *region, MetaUIFrame *frame)
 }
 
 static void
-subtract_from_region (GdkRegion *region, GdkDrawable *drawable,
+subtract_from_region (GdkRegion *region, GdkWindow *drawable,
                       gint x, gint y)
 {
   GdkRectangle rect;
@@ -2319,7 +2319,7 @@ meta_frames_expose_event (GtkWidget           *widget,
 static void
 meta_frames_paint_to_drawable (MetaFrames   *frames,
                                MetaUIFrame  *frame,
-                               GdkDrawable  *drawable,
+                               GdkWindow  *drawable,
                                GdkRegion    *region,
                                int           x_offset,
                                int           y_offset)
