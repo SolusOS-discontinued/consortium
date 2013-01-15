@@ -2220,13 +2220,13 @@ clip_to_screen (cairo_region_t *region, MetaUIFrame *frame)
                  META_CORE_GET_SCREEN_HEIGHT, &screen_area.height,
                  META_CORE_GET_END);
 
-  gdk_region_offset (region, frame_area.x, frame_area.y);
+  cairo_region_translate (region, frame_area.x, frame_area.y);
 
   tmp_region = cairo_region_create_rectangle (&frame_area);
   gdk_region_intersect (region, tmp_region);
   cairo_region_destroy (tmp_region);
 
-  gdk_region_offset (region, - frame_area.x, - frame_area.y);
+  cairo_region_translate (region, - frame_area.x, - frame_area.y);
 }
 
 static void
