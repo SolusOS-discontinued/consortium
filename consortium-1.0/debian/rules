@@ -8,7 +8,7 @@ include /usr/share/gnome-pkg-tools/1/rules/gnome-version.mk
 -include /usr/share/gnome-pkg-tools/1/rules/gnome-get-source.mk
 
 DEB_CONFIGURE_EXTRA_FLAGS += --enable-startup-notification=yes
-DEB_DH_MAKESHLIBS_ARGS_libconsortium-private0a += -V 'libconsortium-private0a (>= 1:2.34.0)'
+DEB_DH_MAKESHLIBS_ARGS_libconsortium-private0a += -V 'libconsortium-private0a (>= 1.0)'
 DEB_INSTALL_DOCS_consortium += doc/theme-format.txt
 
 LDFLAGS += -Wl,-z,defs -Wl,-O1 -Wl,--as-needed
