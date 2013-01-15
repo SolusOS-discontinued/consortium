@@ -2297,7 +2297,7 @@ meta_frames_expose_event (GtkWidget           *widget,
 
   populate_cache (frames, frame);
 
-  region = gdk_region_copy (event->region);
+  region = cairo_region_copy (event->region);
   
   pixels = get_cache (frames, frame);
 
@@ -2453,7 +2453,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
                      META_CORE_GET_SCREEN_HEIGHT, &screen_height,
                      META_CORE_GET_END);
 
-      edges = gdk_region_copy (region);
+      edges = cairo_region_copy (region);
 
       /* Punch out the client area */
 
