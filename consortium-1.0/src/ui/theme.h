@@ -34,7 +34,7 @@ typedef struct _MetaFrameStyleSet MetaFrameStyleSet;
 typedef struct _MetaDrawOp MetaDrawOp;
 typedef struct _MetaDrawOpList MetaDrawOpList;
 typedef struct _MetaGradientSpec MetaGradientSpec;
-typedef struct _MetaAlphaGradientSpec MetaAlphaGradientSpec; 
+typedef struct _MetaAlphaGradientSpec MetaAlphaGradientSpec;
 typedef struct _MetaColorSpec MetaColorSpec;
 typedef struct _MetaFrameLayout MetaFrameLayout;
 typedef struct _MetaButtonSpace MetaButtonSpace;
@@ -42,6 +42,54 @@ typedef struct _MetaFrameGeometry MetaFrameGeometry;
 typedef struct _MetaTheme MetaTheme;
 typedef struct _MetaPositionExprEnv MetaPositionExprEnv;
 typedef struct _MetaDrawInfo MetaDrawInfo;
+typedef struct _MetaShadowProperties MetaShadowProperties;
+typedef struct _MetaInvisibleGrabAreaProperties MetaInvisibleGrabAreaProperties;
+
+struct _MetaShadowProperties
+{
+  /**
+   * Radius of the shadow
+   */
+  double unity_shadow_radius;
+
+  /**
+   * Opacity of the shadow
+   */
+  double unity_shadow_opacity;
+
+  /**
+   * Color of the shadow
+   */
+  MetaColorSpec *unity_shadow_color;
+  /**
+   * Shadow X Offset
+   */
+  guint8 unity_shadow_x_offset;
+  /**
+   * Shadow Y Offset
+   */
+  guint8 unity_shadow_y_offset;
+};
+
+struct _MetaInvisibleGrabAreaProperties
+{
+  /**
+   * Left padding
+   */
+  guint8 left;
+  /**
+   * Right padding
+   */
+  guint8 right;
+  /**
+   * Bottom padding
+   */
+  guint8 bottom;
+  /**
+   * Top padding
+   */
+  guint8 top;
+};
 
 #define META_THEME_ERROR (g_quark_from_static_string ("meta-theme-error"))
 
@@ -698,6 +746,15 @@ struct _MetaFrameStyle
    * Transparency of the window background. 0=transparent; 255=opaque.
    */
   guint8 window_background_alpha;
+  /**
+   * Shadow
+   */
+  MetaShadowProperties *shadow_properties;
+  /**
+   * Padding (eg invisible grab area)
+   */
+  MetaInvisibleGrabAreaProperties *invisible_grab_area_properties;
+
 };
 
 /* Kinds of frame...
@@ -959,6 +1016,11 @@ MetaAlphaGradientSpec* meta_alpha_gradient_spec_new  (MetaGradientType       typ
                                                       int                    n_alphas);
 void                   meta_alpha_gradient_spec_free (MetaAlphaGradientSpec *spec);
 
+MetaShadowProperties* meta_shadow_properties_new (void);
+void                  meta_shadow_properties_free (MetaShadowProperties *);
+
+MetaInvisibleGrabAreaProperties* meta_invisible_grab_area_properties_new (void);
+void                             meta_invisible_grab_area_properties_free (MetaInvisibleGrabAreaProperties *);
 
 MetaFrameStyle* meta_frame_style_new   (MetaFrameStyle *parent);
 void            meta_frame_style_ref   (MetaFrameStyle *style);
@@ -996,6 +1058,8 @@ void meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                        GdkPixbuf               *mini_icon,
                                        GdkPixbuf               *icon);
 
+MetaShadowProperties * meta_frame_style_get_shadow_properties (MetaFrameStyle *style);
+MetaInvisibleGrabAreaProperties * meta_frame_style_get_invisible_grab_area_properties (MetaFrameStyle *style);
 
 gboolean       meta_frame_style_validate (MetaFrameStyle    *style,
                                           guint              current_theme_version,

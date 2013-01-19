@@ -1090,6 +1090,51 @@ meta_alpha_gradient_spec_free (MetaAlphaGradientSpec *spec)
   g_free (spec);
 }
 
+MetaShadowProperties*
+meta_shadow_properties_new (void)
+{
+  MetaShadowProperties *properties;
+  
+  properties = g_new0 (MetaShadowProperties, 1);
+
+  if (properties)
+  {
+    properties->unity_shadow_radius = 0.0f;
+    properties->unity_shadow_x_offset = 0;
+    properties->unity_shadow_y_offset = 0;
+    properties->unity_shadow_color = NULL;
+  }
+
+  return properties;
+}
+
+void
+meta_shadow_properties_free (MetaShadowProperties *properties)
+{
+  g_return_if_fail (properties != NULL);
+
+  meta_color_spec_free (properties->unity_shadow_color);
+  g_free (properties);
+}
+
+MetaInvisibleGrabAreaProperties*
+meta_invisible_grab_area_properties_new (void)
+{
+  MetaInvisibleGrabAreaProperties *properties;
+  
+  properties = g_new0 (MetaInvisibleGrabAreaProperties, 1);
+
+  return properties;
+}
+
+void
+meta_invisible_grab_area_properties_free (MetaInvisibleGrabAreaProperties *properties)
+{
+  g_return_if_fail (properties != NULL);
+
+  g_free (properties);
+}
+
 MetaColorSpec*
 meta_color_spec_new (MetaColorSpecType type)
 {
@@ -4188,6 +4233,12 @@ meta_frame_style_unref (MetaFrameStyle *style)
       if (style->parent)
         meta_frame_style_unref (style->parent);
 
+      if (style->shadow_properties)
+        meta_shadow_properties_free (style->shadow_properties);
+
+      if (style->invisible_grab_area_properties)
+        meta_invisible_grab_area_properties_free (style->invisible_grab_area_properties);
+
       DEBUG_FILL_STRUCT (style);
       g_free (style);
     }
@@ -4680,6 +4731,18 @@ meta_frame_style_draw (MetaFrameStyle          *style,
                                     clip, fgeom, client_width, client_height,
                                     title_layout, text_height,
                                     button_states, mini_icon, icon);
+}
+
+MetaShadowProperties *
+meta_frame_style_get_shadow_properties (MetaFrameStyle *style)
+{
+    return style->shadow_properties;
+}
+
+
+MetaInvisibleGrabAreaProperties * meta_frame_style_get_invisible_grab_area_properties (MetaFrameStyle *style)
+{
+    return style->invisible_grab_area_properties;
 }
 
 MetaFrameStyleSet*

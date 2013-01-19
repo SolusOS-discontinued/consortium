@@ -67,6 +67,8 @@ typedef enum
   STATE_FRAME_STYLE,
   STATE_PIECE,
   STATE_BUTTON,
+  STATE_SHADOW,
+  STATE_PADDING,
   /* style set */
   STATE_FRAME_STYLE_SET,
   STATE_FRAME,
@@ -172,6 +174,20 @@ static void parse_button_element    (GMarkupParseContext  *context,
                                      const gchar         **attribute_values,
                                      ParseInfo            *info,
                                      GError              **error);
+
+static void parse_shadow_element    (GMarkupParseContext  *context,
+                                     const gchar          *element_name,
+                                     const gchar         **attribute_names,
+                                     const gchar         **attribute_values,
+                                     ParseInfo            *info,
+                                     GError              **error);
+
+static void parse_padding_element    (GMarkupParseContext  *context,
+                                      const gchar          *element_name,
+                                      const gchar         **attribute_names,
+                                      const gchar         **attribute_values,
+                                      ParseInfo            *info,
+                                      GError              **error);
 
 static void parse_menu_icon_element (GMarkupParseContext  *context,
                                      const gchar          *element_name,
@@ -2935,8 +2951,75 @@ parse_style_element (GMarkupParseContext  *context,
           meta_draw_op_list_ref (op_list);
           info->op_list = op_list;
         }
-      
+
       push_state (info, STATE_BUTTON);
+    }
+  else if (ELEMENT_IS ("shadow"))
+    {
+      const char *shadow_radius = NULL;
+      const char *shadow_opacity = NULL;
+      const char *shadow_color = NULL;
+      const char *shadow_x_offset = NULL;
+      const char *shadow_y_offset = NULL;
+      double shadow_radius_v, shadow_opacity_v;
+      int    shadow_x_offset_v, shadow_y_offset_v;
+      MetaColorSpec *shadow_color_v;
+
+      if (!locate_attributes (context, element_name, attribute_names, attribute_values,
+                              error,
+                              "radius", &shadow_radius,
+                              "opacity", &shadow_opacity,
+                              "color", &shadow_color,
+                              "x_offset", &shadow_x_offset,
+                              "y_offset", &shadow_y_offset,
+                              NULL))
+        return;
+
+      parse_double (shadow_radius, &shadow_radius_v, context, error);
+      parse_double (shadow_opacity, &shadow_opacity_v, context, error);
+      parse_positive_integer (shadow_x_offset, &shadow_x_offset_v, context, info->theme, error);
+      parse_positive_integer (shadow_y_offset, &shadow_y_offset_v, context, info->theme, error);
+      shadow_color_v = parse_color (info->theme, shadow_color, error);
+
+      if (!info->style->shadow_properties)
+        info->style->shadow_properties = meta_shadow_properties_new ();
+
+      info->style->shadow_properties->unity_shadow_radius = shadow_radius_v;
+      info->style->shadow_properties->unity_shadow_opacity = shadow_opacity_v;
+      info->style->shadow_properties->unity_shadow_x_offset = shadow_x_offset_v;
+      info->style->shadow_properties->unity_shadow_y_offset = shadow_y_offset_v;
+      info->style->shadow_properties->unity_shadow_color = shadow_color_v;
+
+      push_state (info, STATE_SHADOW);
+
+    }
+  else if (ELEMENT_IS ("padding"))
+    {
+      const char *left = NULL;
+      const char *bottom = NULL;
+      const char *right = NULL;
+      int        left_v, right_v, bottom_v;
+
+      if (!locate_attributes (context, element_name, attribute_names, attribute_values,
+                              error,
+                              "left", &left,
+                              "right", &right,
+                              "bottom", &bottom,
+                              NULL))
+        return;
+
+      parse_positive_integer (left, &left_v, context, info->theme, error);
+      parse_positive_integer (right, &right_v, context, info->theme, error);
+      parse_positive_integer (bottom, &bottom_v, context, info->theme, error);
+
+      if (!info->style->invisible_grab_area_properties)
+        info->style->invisible_grab_area_properties = meta_invisible_grab_area_properties_new ();
+
+      info->style->invisible_grab_area_properties->left = left_v;
+      info->style->invisible_grab_area_properties->right = right_v;
+      info->style->invisible_grab_area_properties->bottom = bottom_v;
+
+      push_state (info, STATE_PADDING);
     }
   else
     {
@@ -3260,6 +3343,38 @@ parse_button_element (GMarkupParseContext  *context,
 }
 
 static void
+parse_shadow_element (GMarkupParseContext  *context,
+                      const gchar          *element_name,
+                      const gchar         **attribute_names,
+                      const gchar         **attribute_values,
+                      ParseInfo            *info,
+                      GError              **error)
+{
+  g_return_if_fail (peek_state (info) == STATE_SHADOW);
+
+  set_error (error, context,
+             G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+             _("Element <%s> is not allowed below <%s>"),
+             element_name, "shadow");
+}
+
+static void
+parse_padding_element (GMarkupParseContext  *context,
+                      const gchar          *element_name,
+                      const gchar         **attribute_names,
+                      const gchar         **attribute_values,
+                      ParseInfo            *info,
+                      GError              **error)
+{
+  g_return_if_fail (peek_state (info) == STATE_PADDING);
+
+  set_error (error, context,
+             G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+             _("Element <%s> is not allowed below <%s>"),
+             element_name, "padding");
+}
+
+static void
 parse_menu_icon_element (GMarkupParseContext  *context,
                          const gchar          *element_name,
                          const gchar         **attribute_names,
@@ -3410,6 +3525,16 @@ start_element_handler (GMarkupParseContext *context,
                             attribute_names, attribute_values,
                             info, error);
       break;
+    case STATE_SHADOW:
+       parse_shadow_element (context, element_name,
+                             attribute_names, attribute_values,
+                             info, error);
+       break;
+    case STATE_PADDING:
+       parse_padding_element (context, element_name,
+                              attribute_names, attribute_values,
+                              info, error);
+       break;
     case STATE_MENU_ICON:
       parse_menu_icon_element (context, element_name,
                                attribute_names, attribute_values,
@@ -3679,6 +3804,14 @@ end_element_handler (GMarkupParseContext *context,
         }
       pop_state (info);
       break;
+    case STATE_SHADOW:
+      g_assert (info->style);
+      pop_state (info);
+      break;
+    case STATE_PADDING:
+      g_assert (info->style);
+      pop_state (info);
+      break;
     case STATE_MENU_ICON:
       g_assert (info->theme);
       if (info->op_list != NULL)
@@ -3902,6 +4035,12 @@ text_handler (GMarkupParseContext *context,
       break;
     case STATE_BUTTON:
       NO_TEXT ("button");
+      break;
+    case STATE_SHADOW:
+      NO_TEXT ("shadow");
+      break;
+    case STATE_PADDING:
+      NO_TEXT ("padding");
       break;
     case STATE_MENU_ICON:
       NO_TEXT ("menu_icon");
