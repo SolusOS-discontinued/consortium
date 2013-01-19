@@ -82,8 +82,8 @@ typedef enum
 typedef struct
 {
   GSList *states;
-
-  const char *theme_name;       /* name of theme (directory it's in) */
+  gboolean legacy_theme;        /* Whether this is a legacy Metacity theme */
+  const char *theme_name;      /* name of theme (directory it's in) */
   char *theme_file;             /* theme filename */
   char *theme_dir;              /* dir the theme is inside */
   MetaTheme *theme;             /* theme being parsed */
@@ -3426,20 +3426,38 @@ start_element_handler (GMarkupParseContext *context,
   switch (peek_state (info))
     {
     case STATE_START:
-      if (strcmp (element_name, "consortium_theme") == 0)
-        {
-          info->theme = meta_theme_new ();
-          info->theme->name = g_strdup (info->theme_name);
-          info->theme->filename = g_strdup (info->theme_file);
-          info->theme->dirname = g_strdup (info->theme_dir);
-          info->theme->format_version = info->format_version;
-          
-          push_state (info, STATE_THEME);
-        }
-      else
-        set_error (error, context, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
-                   _("Outermost element in theme must be <consortium_theme> not <%s>"),
-                   element_name);
+      if (info->legacy_theme == TRUE)
+      {
+              if (strcmp (element_name, "metacity_theme") == 0)
+                {
+                  info->theme = meta_theme_new ();
+                  info->theme->name = g_strdup (info->theme_name);
+                  info->theme->filename = g_strdup (info->theme_file);
+                  info->theme->dirname = g_strdup (info->theme_dir);
+                  info->theme->format_version = info->format_version;
+                  
+                  push_state (info, STATE_THEME);
+                }
+              else
+                set_error (error, context, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                           _("Outermost element in theme must be <metacity_theme> not <%s>"),
+                           element_name);
+      } else {
+              if (strcmp (element_name, "consortium_theme") == 0)
+                {
+                  info->theme = meta_theme_new ();
+                  info->theme->name = g_strdup (info->theme_name);
+                  info->theme->filename = g_strdup (info->theme_file);
+                  info->theme->dirname = g_strdup (info->theme_dir);
+                  info->theme->format_version = info->format_version;
+                  
+                  push_state (info, STATE_THEME);
+                }
+              else
+                set_error (error, context, G_MARKUP_ERROR, G_MARKUP_ERROR_PARSE,
+                           _("Outermost element in theme must be <consortium_theme> not <%s>"),
+                           element_name);
+      }
       break;
 
     case STATE_THEME:
@@ -3899,7 +3917,10 @@ text_handler (GMarkupParseContext *context,
       g_assert_not_reached (); /* gmarkup shouldn't do this */
       break;
     case STATE_THEME:
-      NO_TEXT ("consortium_theme");
+      if (info->legacy_theme == TRUE)
+        NO_TEXT ("metacity_theme");
+      else
+        NO_TEXT ("consortium_theme");
       break;
     case STATE_INFO:
       NO_TEXT ("info");
@@ -4099,7 +4120,8 @@ meta_theme_load (const char *theme_name,
   
   theme_dir = NULL;
   theme_file = NULL;
-  
+  info.legacy_theme = FALSE; /* Assume firstly that its a new consortium theme */
+
   if (meta_is_debugging ())
     {
       gchar *theme_filename = g_strdup_printf (CONSORTIUM_THEME_FILENAME_FORMAT,
