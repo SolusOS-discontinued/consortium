@@ -315,7 +315,7 @@ meta_ui_create_frame_window (MetaUI *ui,
   gint attributes_mask;
   GdkWindow *window;
   GdkVisual *visual;
-  GdkColormap *cmap = gdk_screen_get_default_colormap (screen);
+  GdkColormap *cmap = gdk_screen_get_system_colormap (screen);
   
   /* Default depth/visual handles clients with weird visuals; they can
    * always be children of the root depth/visual obviously, but
