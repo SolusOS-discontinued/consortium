@@ -4112,6 +4112,7 @@ meta_theme_load (const char *theme_name,
   guint version;
   const gchar* const* xdg_data_dirs;
   int i;
+  gboolean legacy_check;
 
   text = NULL;
   length = 0;
@@ -4121,6 +4122,7 @@ meta_theme_load (const char *theme_name,
   theme_dir = NULL;
   theme_file = NULL;
   info.legacy_theme = FALSE; /* Assume firstly that its a new consortium theme */
+  legacy_check = FALSE;
 
   if (meta_is_debugging ())
     {
@@ -4157,6 +4159,8 @@ meta_theme_load (const char *theme_name,
     {
       gchar *theme_filename = g_strdup_printf (CONSORTIUM_THEME_FILENAME_FORMAT,
                                                version);
+      gchar *theme_filename_legacy = g_strdup_printf (CONSORTIUM_THEME_FILENAME_FORMAT_LEGACY,
+                                               version);
       
       /* We try first in home dir, XDG_DATA_DIRS, then system dir for themes */
 
@@ -4183,8 +4187,40 @@ meta_theme_load (const char *theme_name,
           g_free (theme_dir);
           g_free (theme_file);
           theme_file = NULL;
+          legacy_check = TRUE;
         }
 
+      if (legacy_check)
+      {
+              /* Attempt to locate legacy theme */
+              theme_dir = g_build_filename (g_get_home_dir (),
+                                            ".themes",
+                                            theme_name,
+                                            THEME_SUBDIR_LEGACY,
+                                            NULL);
+              
+              theme_file = g_build_filename (theme_dir,
+                                             theme_filename_legacy,
+                                             NULL);
+
+              error = NULL;
+              if (!g_file_get_contents (theme_file,
+                                        &text,
+                                        &length,
+                                        &error))
+                {
+                  meta_topic (META_DEBUG_THEMES, "Failed to read theme from file %s: %s\n",
+                              theme_file, error->message);
+                  g_error_free (error);
+                  g_free (theme_dir);
+                  g_free (theme_file);
+                  theme_file = NULL;
+                } else {
+                  info.legacy_theme = TRUE;
+                }
+              legacy_check = FALSE;
+      }
+    
       /* Try each XDG_DATA_DIRS for theme */
       xdg_data_dirs = g_get_system_data_dirs();
       for(i = 0; xdg_data_dirs[i] != NULL; i++)
@@ -4213,11 +4249,46 @@ meta_theme_load (const char *theme_name,
                   g_free (theme_dir);
                   g_free (theme_file);
                   theme_file = NULL;
+                  legacy_check = TRUE;
                 }
               else
                 {
                   break;
                 }
+
+              /* Check for legacy theme */
+              if (legacy_check)
+              {
+                      legacy_check = FALSE;       
+                      theme_dir = g_build_filename (xdg_data_dirs[i],
+                                                    "themes",
+                                                    theme_name,
+                                                    THEME_SUBDIR_LEGACY,
+                                                    NULL);
+
+                      theme_file = g_build_filename (theme_dir,
+                                                     theme_filename_legacy,
+                                                     NULL);
+
+                      error = NULL;
+                      if (!g_file_get_contents (theme_file,
+                                                &text,
+                                                &length,
+                                                &error))
+                        {
+                          meta_topic (META_DEBUG_THEMES, "Failed to read theme from file %s: %s\n",
+                                      theme_file, error->message);
+                          g_error_free (error);
+                          g_free (theme_dir);
+                          g_free (theme_file);
+                          theme_file = NULL;
+                        }
+                      else
+                        {
+                          info.legacy_theme = TRUE;
+                          break;
+                        }
+              }
             }
         }
 
@@ -4246,7 +4317,38 @@ meta_theme_load (const char *theme_name,
               g_free (theme_dir);
               g_free (theme_file);
               theme_file = NULL;
+              legacy_check = TRUE;
             }
+        }
+
+        if (legacy_check)
+        {
+                  legacy_check = FALSE;
+                  theme_dir = g_build_filename (CONSORTIUM_DATADIR,
+                                                "themes",
+                                                theme_name,
+                                                THEME_SUBDIR_LEGACY,
+                                                NULL);
+              
+                  theme_file = g_build_filename (theme_dir,
+                                                 theme_filename_legacy,
+                                                 NULL);
+
+                  error = NULL;
+                  if (!g_file_get_contents (theme_file,
+                                            &text,
+                                            &length,
+                                            &error))
+                    {
+                      meta_topic (META_DEBUG_THEMES, "Failed to read theme from file %s: %s\n",
+                                    theme_file, error->message);
+                      g_error_free (error);
+                      g_free (theme_dir);
+                      g_free (theme_file);
+                      theme_file = NULL;
+                    } else {
+                      info.legacy_theme = TRUE;
+                    }
         }
 
       g_free (theme_filename);
