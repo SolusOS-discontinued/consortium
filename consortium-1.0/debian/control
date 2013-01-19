@@ -7,7 +7,7 @@ Source: consortium
 Section: x11
 Priority: optional
 Maintainer: Debian GNOME Maintainers <pkg-gnome-maintainers@lists.alioth.debian.org>
-Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Josselin Mouette <joss@debian.org>, Michael Biebl <biebl@debian.org>, Sebastian Dröge <slomo@debian.org>
+Uploaders: Emilio Pozuelo Monfort <pochu@debian.org>, Josselin Mouette <joss@debian.org>, Michael Biebl <biebl@debian.org>
 Build-Depends: cdbs (>= 0.4.41),
                debhelper (>= 8),
                intltool (>= 0.34.90),
