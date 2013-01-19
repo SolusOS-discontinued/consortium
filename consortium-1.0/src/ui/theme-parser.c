@@ -4072,7 +4072,8 @@ text_handler (GMarkupParseContext *context,
  */
 #define THEME_VERSION 2
 
-#define CONSORTIUM_THEME_FILENAME_FORMAT "consortium-theme-%d.xml"
+#define CONSORTIUM_THEME_FILENAME_FORMAT        "consortium-theme-%d.xml"
+#define CONSORTIUM_THEME_FILENAME_FORMAT_LEGACY "metacity-theme-%d.xml"
 
 MetaTheme*
 meta_theme_load (const char *theme_name,
