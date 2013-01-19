@@ -1,3 +1,9 @@
+consortium (1.0.2) two; urgency=low
+
+  * Add UXD shadows + side by side tiling 
+
+ -- Ikey Doherty <ikey@solusos.com>  Sat, 19 Jan 2013 20:05:46 +0000
+
 consortium (1.0) two; urgency=low
 
   * Initial packaging of Consortium
