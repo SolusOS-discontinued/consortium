@@ -47,8 +47,8 @@ struct _TabEntry
   char            *title;
   GdkPixbuf       *icon, *dimmed_icon;
   GtkWidget       *widget;
-  GdkRectangle     rect;
-  GdkRectangle     inner_rect;
+  cairo_rectangle_int_t     rect;
+  cairo_rectangle_int_t     inner_rect;
   guint blank : 1;
 };
 
@@ -455,9 +455,9 @@ static void
 display_entry (MetaTabPopup *popup,
                TabEntry     *te)
 {
-  GdkRectangle rect;
-  GdkRegion *region;
-  GdkRegion *inner_region;
+  cairo_rectangle_int_t rect;
+  cairo_region_t *region;
+  cairo_region_t *inner_region;
   GdkWindow *window;
 
   
@@ -495,16 +495,16 @@ display_entry (MetaTabPopup *popup,
       gdk_window_set_background (window,
                                  &gtk_widget_get_style (popup->outline_window)->black);
   
-      region = gdk_region_rectangle (&rect);
-      inner_region = gdk_region_rectangle (&te->inner_rect);
-      gdk_region_subtract (region, inner_region);
-      gdk_region_destroy (inner_region);
+      region = cairo_region_create_rectangle (&rect);
+      inner_region = cairo_region_create_rectangle (&te->inner_rect);
+      cairo_region_subtract (region, inner_region);
+      cairo_region_destroy (inner_region);
   
       gdk_window_shape_combine_region (window,
                                        region,
                                        0, 0);
 
-      gdk_region_destroy (region);
+      cairo_region_destroy (region);
   
       /* This should piss off gtk a bit, but we don't want to raise
        * above the tab popup.  So, instead of calling gtk_widget_show,

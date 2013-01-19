@@ -640,7 +640,7 @@ meta_gdk_pixbuf_get_from_window (GdkPixbuf   *dest,
                                  int          width,
                                  int          height)
 {
-  GdkDrawable *drawable;
+  GdkWindow *drawable;
   GdkPixbuf *retval;
   GdkColormap *cmap;
   
@@ -679,7 +679,7 @@ meta_gdk_pixbuf_get_from_pixmap (GdkPixbuf   *dest,
                                  int          width,
                                  int          height)
 {
-  GdkDrawable *drawable;
+  GdkWindow *drawable;
   GdkPixbuf *retval;
   GdkColormap *cmap;
   

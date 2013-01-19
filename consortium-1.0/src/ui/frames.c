@@ -73,8 +73,8 @@ static void meta_frames_attach_style (MetaFrames  *frames,
 
 static void meta_frames_paint_to_drawable (MetaFrames   *frames,
                                            MetaUIFrame  *frame,
-                                           GdkDrawable  *drawable,
-                                           GdkRegion    *region,
+                                           GdkWindow  *drawable,
+                                           cairo_region_t    *region,
                                            int           x_offset,
                                            int           y_offset);
 
@@ -95,7 +95,7 @@ static void meta_frames_font_changed          (MetaFrames *frames);
 static void meta_frames_button_layout_changed (MetaFrames *frames);
 
 
-static GdkRectangle*    control_rect (MetaFrameControl   control,
+static cairo_rectangle_int_t*    control_rect (MetaFrameControl   control,
                                       MetaFrameGeometry *fgeom);
 static MetaFrameControl get_control  (MetaFrames        *frames,
                                       MetaUIFrame       *frame,
@@ -1168,7 +1168,7 @@ show_tip_now (MetaFrames *frames)
   if (tiptext)
     {
       MetaFrameGeometry fgeom;
-      GdkRectangle *rect;
+      cairo_rectangle_int_t *rect;
       int dx, dy;
       int screen_number;
       
@@ -1234,7 +1234,7 @@ redraw_control (MetaFrames *frames,
                 MetaFrameControl control)
 {
   MetaFrameGeometry fgeom;
-  GdkRectangle *rect;
+  cairo_rectangle_int_t *rect;
   
   meta_frames_calc_geometry (frames, frame, &fgeom);
 
@@ -1502,7 +1502,7 @@ meta_frames_button_press_event (GtkWidget      *widget,
       if (op == META_GRAB_OP_CLICKING_MENU)
         {
           MetaFrameGeometry fgeom;
-          GdkRectangle *rect;
+          cairo_rectangle_int_t *rect;
           int dx, dy;
           
           meta_frames_calc_geometry (frames, frame, &fgeom);
@@ -2006,7 +2006,7 @@ meta_frames_destroy_event           (GtkWidget           *widget,
 #if !GTK_CHECK_VERSION(2,21,6)
 /* Copied from GDK */
 static cairo_surface_t *
-_gdk_drawable_ref_cairo_surface (GdkDrawable *drawable)
+_gdk_drawable_ref_cairo_surface (GdkWindow *drawable)
 {
   g_return_val_if_fail (GDK_IS_DRAWABLE (drawable), NULL);
 
@@ -2098,8 +2098,8 @@ generate_pixmap (MetaFrames *frames,
                  MetaUIFrame *frame,
                  MetaRectangle rect)
 {
-  GdkRectangle rectangle;
-  GdkRegion *region;
+  cairo_rectangle_int_t rectangle;
+  cairo_region_t *region;
   GdkPixmap *result;
 
   rectangle.x = rect.x;
@@ -2112,12 +2112,12 @@ generate_pixmap (MetaFrames *frames,
   
   clear_backing (result, frame->window, rectangle.x, rectangle.y);
 
-  region = gdk_region_rectangle (&rectangle);
+  region = cairo_region_create_rectangle (&rectangle);
 
   meta_frames_paint_to_drawable (frames, frame, result, region,
                                  -rectangle.x, -rectangle.y);
 
-  gdk_region_destroy (region);
+  cairo_region_destroy (region);
 
   return result;
 }
@@ -2201,11 +2201,11 @@ populate_cache (MetaFrames *frames,
 }
 
 static void
-clip_to_screen (GdkRegion *region, MetaUIFrame *frame)
+clip_to_screen (cairo_region_t *region, MetaUIFrame *frame)
 {
-  GdkRectangle frame_area;
-  GdkRectangle screen_area = { 0, 0, 0, 0 };
-  GdkRegion *tmp_region;
+  cairo_rectangle_int_t frame_area;
+  cairo_rectangle_int_t screen_area = { 0, 0, 0, 0 };
+  cairo_region_t *tmp_region;
   
   /* Chop off stuff outside the screen; this optimization
    * is crucial to handle huge client windows,
@@ -2220,35 +2220,35 @@ clip_to_screen (GdkRegion *region, MetaUIFrame *frame)
                  META_CORE_GET_SCREEN_HEIGHT, &screen_area.height,
                  META_CORE_GET_END);
 
-  gdk_region_offset (region, frame_area.x, frame_area.y);
+  cairo_region_translate (region, frame_area.x, frame_area.y);
 
-  tmp_region = gdk_region_rectangle (&frame_area);
-  gdk_region_intersect (region, tmp_region);
-  gdk_region_destroy (tmp_region);
+  tmp_region = cairo_region_create_rectangle (&frame_area);
+  cairo_region_intersect (region, tmp_region);
+  cairo_region_destroy (tmp_region);
 
-  gdk_region_offset (region, - frame_area.x, - frame_area.y);
+  cairo_region_translate (region, - frame_area.x, - frame_area.y);
 }
 
 static void
-subtract_from_region (GdkRegion *region, GdkDrawable *drawable,
+subtract_from_region (cairo_region_t *region, GdkWindow *drawable,
                       gint x, gint y)
 {
-  GdkRectangle rect;
-  GdkRegion *reg_rect;
+  cairo_rectangle_int_t rect;
+  cairo_region_t *reg_rect;
 
   gdk_drawable_get_size (drawable, &rect.width, &rect.height);
   rect.x = x;
   rect.y = y;
 
-  reg_rect = gdk_region_rectangle (&rect);
-  gdk_region_subtract (region, reg_rect);
-  gdk_region_destroy (reg_rect);
+  reg_rect = cairo_region_create_rectangle (&rect);
+  cairo_region_subtract (region, reg_rect);
+  cairo_region_destroy (reg_rect);
 }
 
 static void
 cached_pixels_draw (CachedPixels *pixels,
                     GdkWindow *window,
-                    GdkRegion *region)
+                    cairo_region_t *region)
 {
   cairo_t *cr;
   int i;
@@ -2279,7 +2279,7 @@ meta_frames_expose_event (GtkWidget           *widget,
 {
   MetaUIFrame *frame;
   MetaFrames *frames;
-  GdkRegion *region;
+  cairo_region_t *region;
   CachedPixels *pixels;
 
   frames = META_FRAMES (widget);
@@ -2297,7 +2297,7 @@ meta_frames_expose_event (GtkWidget           *widget,
 
   populate_cache (frames, frame);
 
-  region = gdk_region_copy (event->region);
+  region = cairo_region_copy (event->region);
   
   pixels = get_cache (frames, frame);
 
@@ -2306,7 +2306,7 @@ meta_frames_expose_event (GtkWidget           *widget,
   clip_to_screen (region, frame);
   meta_frames_paint_to_drawable (frames, frame, frame->window, region, 0, 0);
 
-  gdk_region_destroy (region);
+  cairo_region_destroy (region);
   
   return TRUE;
 }
@@ -2319,8 +2319,8 @@ meta_frames_expose_event (GtkWidget           *widget,
 static void
 meta_frames_paint_to_drawable (MetaFrames   *frames,
                                MetaUIFrame  *frame,
-                               GdkDrawable  *drawable,
-                               GdkRegion    *region,
+                               GdkWindow  *drawable,
+                               cairo_region_t    *region,
                                int           x_offset,
                                int           y_offset)
 {
@@ -2436,10 +2436,10 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
     {
       /* A window; happens about 2/3 of the time */
 
-      GdkRectangle area, *areas;
+      cairo_rectangle_int_t area, *areas;
       int n_areas;
       int screen_width, screen_height;
-      GdkRegion *edges, *tmp_region;
+      cairo_region_t *edges, *tmp_region;
       int top, bottom, left, right;
  
       /* Repaint each side of the frame */
@@ -2453,7 +2453,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
                      META_CORE_GET_SCREEN_HEIGHT, &screen_height,
                      META_CORE_GET_END);
 
-      edges = gdk_region_copy (region);
+      edges = cairo_region_copy (region);
 
       /* Punch out the client area */
 
@@ -2461,9 +2461,9 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
       area.y = top;
       area.width = w;
       area.height = h;
-      tmp_region = gdk_region_rectangle (&area);
-      gdk_region_subtract (edges, tmp_region);
-      gdk_region_destroy (tmp_region);
+      tmp_region = cairo_region_create_rectangle (&area);
+      cairo_region_subtract (edges, tmp_region);
+      cairo_region_destroy (tmp_region);
 
       /* Now draw remaining portion of region */
 
@@ -2510,7 +2510,7 @@ meta_frames_paint_to_drawable (MetaFrames   *frames,
         }
 
       g_free (areas);
-      gdk_region_destroy (edges);
+      cairo_region_destroy (edges);
 
     }
   else
@@ -2623,11 +2623,11 @@ meta_frames_leave_notify_event      (GtkWidget           *widget,
   return TRUE;
 }
 
-static GdkRectangle*
+static cairo_rectangle_int_t*
 control_rect (MetaFrameControl control,
               MetaFrameGeometry *fgeom)
 {
-  GdkRectangle *rect;
+  cairo_rectangle_int_t *rect;
   
   rect = NULL;
   switch (control)
@@ -2701,7 +2701,7 @@ get_control (MetaFrames *frames,
   MetaFrameGeometry fgeom;
   MetaFrameFlags flags;
   gboolean has_vert, has_horiz;
-  GdkRectangle client;
+  cairo_rectangle_int_t client;
   
   meta_frames_calc_geometry (frames, frame, &fgeom);
 

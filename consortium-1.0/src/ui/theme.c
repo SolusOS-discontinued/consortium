@@ -579,7 +579,7 @@ rect_for_function (MetaFrameGeometry *fgeom,
 
 static gboolean
 strip_button (MetaButtonSpace *func_rects[MAX_BUTTONS_PER_CORNER],
-              GdkRectangle    *bg_rects[MAX_BUTTONS_PER_CORNER],
+              cairo_rectangle_int_t    *bg_rects[MAX_BUTTONS_PER_CORNER],
               int             *n_rects,
               MetaButtonSpace *to_strip)
 {
@@ -636,9 +636,9 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
    */
   MetaButtonSpace *left_func_rects[MAX_BUTTONS_PER_CORNER];
   MetaButtonSpace *right_func_rects[MAX_BUTTONS_PER_CORNER];
-  GdkRectangle *left_bg_rects[MAX_BUTTONS_PER_CORNER];
+  cairo_rectangle_int_t *left_bg_rects[MAX_BUTTONS_PER_CORNER];
   gboolean left_buttons_has_spacer[MAX_BUTTONS_PER_CORNER];
-  GdkRectangle *right_bg_rects[MAX_BUTTONS_PER_CORNER];
+  cairo_rectangle_int_t *right_bg_rects[MAX_BUTTONS_PER_CORNER];
   gboolean right_buttons_has_spacer[MAX_BUTTONS_PER_CORNER];
   
   meta_frame_layout_get_borders (layout, text_height,
@@ -873,7 +873,9 @@ meta_frame_layout_calc_geometry (const MetaFrameLayout  *layout,
       rect->visible.width = button_width;
       rect->visible.height = button_height;
 
-      if (flags & META_FRAME_MAXIMIZED)
+      if (flags & META_FRAME_MAXIMIZED ||
+          flags & META_FRAME_TILED_LEFT ||
+          flags & META_FRAME_TILED_RIGHT)
         {
           rect->clickable.x = rect->visible.x;
           rect->clickable.y = 0;
@@ -3437,8 +3439,8 @@ static void
 meta_draw_op_draw_with_env (const MetaDrawOp    *op,
                             GtkStyle            *style_gtk,
                             GtkWidget           *widget,
-                            GdkDrawable         *drawable,
-                            const GdkRectangle  *clip,
+                            GdkWindow         *drawable,
+                            const cairo_rectangle_int_t  *clip,
                             const MetaDrawInfo  *info,
                             MetaRectangle        rect,
                             MetaPositionExprEnv *env)
@@ -3725,7 +3727,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
                          drawable,
                          op->data.gtk_arrow.state,
                          op->data.gtk_arrow.shadow,
-                         (GdkRectangle*) clip,
+                         (cairo_rectangle_int_t*) clip,
                          widget,
                          "consortium",
                          op->data.gtk_arrow.arrow,
@@ -3747,7 +3749,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
                        drawable,
                        op->data.gtk_box.state,
                        op->data.gtk_box.shadow,
-                       (GdkRectangle*) clip,
+                       (cairo_rectangle_int_t*) clip,
                        widget,
                        "consortium",
                        rx, ry, rwidth, rheight);
@@ -3765,7 +3767,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
         gtk_paint_vline (style_gtk,
                          drawable,
                          op->data.gtk_vline.state,
-                         (GdkRectangle*) clip,
+                         (cairo_rectangle_int_t*) clip,
                          widget,
                          "consortium",
                          ry1, ry2, rx);
@@ -3831,7 +3833,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
       {
         int rx, ry, rwidth, rheight;
         int tile_xoffset, tile_yoffset; 
-        GdkRectangle new_clip;
+        cairo_rectangle_int_t new_clip;
         MetaRectangle tile;
         
         rx = parse_x_position_unchecked (op->data.tile.x, env);
@@ -3844,7 +3846,7 @@ meta_draw_op_draw_with_env (const MetaDrawOp    *op,
         new_clip.width = rwidth;
         new_clip.height = rheight;
 
-        if (clip == NULL || gdk_rectangle_intersect ((GdkRectangle*)clip, &new_clip,
+        if (clip == NULL || gdk_rectangle_intersect ((cairo_rectangle_int_t*)clip, &new_clip,
                                                      &new_clip))
           {
             tile_xoffset = parse_x_position_unchecked (op->data.tile.tile_xoffset, env);
@@ -3884,8 +3886,8 @@ void
 meta_draw_op_draw_with_style (const MetaDrawOp    *op,
                               GtkStyle            *style_gtk,
                               GtkWidget           *widget,
-                              GdkDrawable         *drawable,
-                              const GdkRectangle  *clip,
+                              GdkWindow         *drawable,
+                              const cairo_rectangle_int_t  *clip,
                               const MetaDrawInfo  *info,
                               MetaRectangle        logical_region)
 {
@@ -3904,8 +3906,8 @@ meta_draw_op_draw_with_style (const MetaDrawOp    *op,
 void
 meta_draw_op_draw (const MetaDrawOp    *op,
                    GtkWidget           *widget,
-                   GdkDrawable         *drawable,
-                   const GdkRectangle  *clip,
+                   GdkWindow         *drawable,
+                   const cairo_rectangle_int_t  *clip,
                    const MetaDrawInfo  *info,
                    MetaRectangle        logical_region)
 {
@@ -3964,14 +3966,14 @@ void
 meta_draw_op_list_draw_with_style  (const MetaDrawOpList *op_list,
                                     GtkStyle             *style_gtk,
                                     GtkWidget            *widget,
-                                    GdkDrawable          *drawable,
-                                    const GdkRectangle   *clip,
+                                    GdkWindow          *drawable,
+                                    const cairo_rectangle_int_t   *clip,
                                     const MetaDrawInfo   *info,
                                     MetaRectangle         rect)
 {
   int i;
-  GdkRectangle active_clip;
-  GdkRectangle orig_clip;
+  cairo_rectangle_int_t active_clip;
+  cairo_rectangle_int_t orig_clip;
   MetaPositionExprEnv env;
 
   g_return_if_fail (style_gtk->colormap == gdk_drawable_get_colormap (drawable));
@@ -4033,8 +4035,8 @@ meta_draw_op_list_draw_with_style  (const MetaDrawOpList *op_list,
 void
 meta_draw_op_list_draw  (const MetaDrawOpList *op_list,
                          GtkWidget            *widget,
-                         GdkDrawable          *drawable,
-                         const GdkRectangle   *clip,
+                         GdkWindow          *drawable,
+                         const cairo_rectangle_int_t   *clip,
                          const MetaDrawInfo   *info,
                          MetaRectangle         rect)
 
@@ -4328,7 +4330,7 @@ static void
 button_rect (MetaButtonType           type,
              const MetaFrameGeometry *fgeom,
              int                      middle_background_offset,
-             GdkRectangle            *rect)
+             cairo_rectangle_int_t            *rect)
 {
   switch (type)
     {
@@ -4406,10 +4408,10 @@ void
 meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GtkStyle                *style_gtk,
                                   GtkWidget               *widget,
-                                  GdkDrawable             *drawable,
+                                  GdkWindow             *drawable,
                                   int                      x_offset,
                                   int                      y_offset,
-                                  const GdkRectangle      *clip,
+                                  const cairo_rectangle_int_t      *clip,
                                   const MetaFrameGeometry *fgeom,
                                   int                      client_width,
                                   int                      client_height,
@@ -4420,12 +4422,12 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
                                   GdkPixbuf               *icon)
 {
   int i, j;
-  GdkRectangle titlebar_rect;
-  GdkRectangle left_titlebar_edge;
-  GdkRectangle right_titlebar_edge;
-  GdkRectangle bottom_titlebar_edge;
-  GdkRectangle top_titlebar_edge;
-  GdkRectangle left_edge, right_edge, bottom_edge;
+  cairo_rectangle_int_t titlebar_rect;
+  cairo_rectangle_int_t left_titlebar_edge;
+  cairo_rectangle_int_t right_titlebar_edge;
+  cairo_rectangle_int_t bottom_titlebar_edge;
+  cairo_rectangle_int_t top_titlebar_edge;
+  cairo_rectangle_int_t left_edge, right_edge, bottom_edge;
   PangoRectangle extents;
   MetaDrawInfo draw_info;
   
@@ -4486,8 +4488,8 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
   i = 0;
   while (i < META_FRAME_PIECE_LAST)
     {
-      GdkRectangle rect;
-      GdkRectangle combined_clip;
+      cairo_rectangle_int_t rect;
+      cairo_rectangle_int_t combined_clip;
       
       switch ((MetaFramePiece) i)
         {
@@ -4560,7 +4562,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
       if (clip == NULL)
         combined_clip = rect;
       else
-        gdk_rectangle_intersect ((GdkRectangle*) clip, /* const cast */
+        gdk_rectangle_intersect ((cairo_rectangle_int_t*) clip, /* const cast */
                                  &rect,
                                  &combined_clip);
 
@@ -4611,7 +4613,7 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
               if (clip == NULL)
                 combined_clip = rect;
               else
-                gdk_rectangle_intersect ((GdkRectangle*) clip, /* const cast */
+                gdk_rectangle_intersect ((cairo_rectangle_int_t*) clip, /* const cast */
                                          &rect,
                                          &combined_clip);
               
@@ -4660,10 +4662,10 @@ meta_frame_style_draw_with_style (MetaFrameStyle          *style,
 void
 meta_frame_style_draw (MetaFrameStyle          *style,
                        GtkWidget               *widget,
-                       GdkDrawable             *drawable,
+                       GdkWindow             *drawable,
                        int                      x_offset,
                        int                      y_offset,
-                       const GdkRectangle      *clip,
+                       const cairo_rectangle_int_t      *clip,
                        const MetaFrameGeometry *fgeom,
                        int                      client_width,
                        int                      client_height,
@@ -4733,7 +4735,11 @@ meta_frame_style_set_unref (MetaFrameStyleSet *style_set)
         }
 
       free_focus_styles (style_set->maximized_styles);
+      free_focus_styles (style_set->tiled_left_styles);
+      free_focus_styles (style_set->tiled_right_styles);
       free_focus_styles (style_set->maximized_and_shaded_styles);
+      free_focus_styles (style_set->tiled_left_and_shaded_styles);
+      free_focus_styles (style_set->tiled_right_and_shaded_styles);
 
       if (style_set->parent)
         meta_frame_style_set_unref (style_set->parent);
@@ -4785,8 +4791,20 @@ get_style (MetaFrameStyleSet *style_set,
           case META_FRAME_STATE_MAXIMIZED:
             styles = style_set->maximized_styles;
             break;
+          case META_FRAME_STATE_TILED_LEFT:
+            styles = style_set->tiled_left_styles;
+            break;
+          case META_FRAME_STATE_TILED_RIGHT:
+            styles = style_set->tiled_right_styles;
+            break;
           case META_FRAME_STATE_MAXIMIZED_AND_SHADED:
             styles = style_set->maximized_and_shaded_styles;
+            break;
+          case META_FRAME_STATE_TILED_LEFT_AND_SHADED:
+            styles = style_set->tiled_left_and_shaded_styles;
+            break;
+          case META_FRAME_STATE_TILED_RIGHT_AND_SHADED:
+            styles = style_set->tiled_right_and_shaded_styles;
             break;
           case META_FRAME_STATE_NORMAL:
           case META_FRAME_STATE_SHADED:
@@ -4796,6 +4814,19 @@ get_style (MetaFrameStyleSet *style_set,
           }
 
         style = styles[focus];
+
+        /* Tiled states are optional, try falling back to non-tiled states */
+        if (style == NULL)
+          {
+            if (state == META_FRAME_STATE_TILED_LEFT ||
+                state == META_FRAME_STATE_TILED_RIGHT)
+              style = get_style (style_set, META_FRAME_STATE_NORMAL,
+                                 resize, focus);
+            else if (state == META_FRAME_STATE_TILED_LEFT_AND_SHADED ||
+                     state == META_FRAME_STATE_TILED_RIGHT_AND_SHADED)
+              style = get_style (style_set, META_FRAME_STATE_SHADED,
+                                 resize, focus);
+          }
 
         /* Try parent if we failed here */
         if (style == NULL && style_set->parent)
@@ -5142,7 +5173,8 @@ theme_get_style (MetaTheme     *theme,
   if (style_set == NULL)
     return NULL;
   
-  switch (flags & (META_FRAME_MAXIMIZED | META_FRAME_SHADED))
+  switch (flags & (META_FRAME_MAXIMIZED | META_FRAME_SHADED |
+                   META_FRAME_TILED_LEFT | META_FRAME_TILED_RIGHT))
     {
     case 0:
       state = META_FRAME_STATE_NORMAL;
@@ -5150,11 +5182,23 @@ theme_get_style (MetaTheme     *theme,
     case META_FRAME_MAXIMIZED:
       state = META_FRAME_STATE_MAXIMIZED;
       break;
+    case META_FRAME_TILED_LEFT:
+      state = META_FRAME_STATE_TILED_LEFT;
+      break;
+    case META_FRAME_TILED_RIGHT:
+      state = META_FRAME_STATE_TILED_RIGHT;
+      break;
     case META_FRAME_SHADED:
       state = META_FRAME_STATE_SHADED;
       break;
     case (META_FRAME_MAXIMIZED | META_FRAME_SHADED):
       state = META_FRAME_STATE_MAXIMIZED_AND_SHADED;
+      break;
+    case (META_FRAME_TILED_LEFT | META_FRAME_SHADED):
+      state = META_FRAME_STATE_TILED_LEFT_AND_SHADED;
+      break;
+    case (META_FRAME_TILED_RIGHT | META_FRAME_SHADED):
+      state = META_FRAME_STATE_TILED_RIGHT_AND_SHADED;
       break;
     default:
       g_assert_not_reached ();
@@ -5230,8 +5274,8 @@ void
 meta_theme_draw_frame_with_style (MetaTheme              *theme,
                                   GtkStyle               *style_gtk,
                                   GtkWidget              *widget,
-                                  GdkDrawable            *drawable,
-                                  const GdkRectangle     *clip,
+                                  GdkWindow            *drawable,
+                                  const cairo_rectangle_int_t     *clip,
                                   int                     x_offset,
                                   int                     y_offset,
                                   MetaFrameType           type,
@@ -5281,8 +5325,8 @@ meta_theme_draw_frame_with_style (MetaTheme              *theme,
 void
 meta_theme_draw_frame (MetaTheme              *theme,
                        GtkWidget              *widget,
-                       GdkDrawable            *drawable,
-                       const GdkRectangle     *clip,
+                       GdkWindow            *drawable,
+                       const cairo_rectangle_int_t     *clip,
                        int                     x_offset,
                        int                     y_offset,
                        MetaFrameType           type,
@@ -5307,8 +5351,8 @@ meta_theme_draw_frame (MetaTheme              *theme,
 void
 meta_theme_draw_frame_by_name (MetaTheme              *theme,
                                GtkWidget              *widget,
-                               GdkDrawable            *drawable,
-                               const GdkRectangle     *clip,
+                               GdkWindow            *drawable,
+                               const cairo_rectangle_int_t     *clip,
                                int                     x_offset,
                                int                     y_offset,
                                const gchar             *style_name,
@@ -5972,10 +6016,18 @@ meta_frame_state_from_string (const char *str)
     return META_FRAME_STATE_NORMAL;
   else if (strcmp ("maximized", str) == 0)
     return META_FRAME_STATE_MAXIMIZED;
+  else if (strcmp ("tiled_left", str) == 0)
+    return META_FRAME_STATE_TILED_LEFT;
+  else if (strcmp ("tiled_right", str) == 0)
+    return META_FRAME_STATE_TILED_RIGHT;
   else if (strcmp ("shaded", str) == 0)
     return META_FRAME_STATE_SHADED;
   else if (strcmp ("maximized_and_shaded", str) == 0)
     return META_FRAME_STATE_MAXIMIZED_AND_SHADED;
+  else if (strcmp ("tiled_left_and_shaded", str) == 0)
+    return META_FRAME_STATE_TILED_LEFT_AND_SHADED;
+  else if (strcmp ("tiled_right_and_shaded", str) == 0)
+    return META_FRAME_STATE_TILED_RIGHT_AND_SHADED;
   else
     return META_FRAME_STATE_LAST;
 }
@@ -5989,10 +6041,18 @@ meta_frame_state_to_string (MetaFrameState state)
       return "normal";
     case META_FRAME_STATE_MAXIMIZED:
       return "maximized";
+    case META_FRAME_STATE_TILED_LEFT:
+      return "tiled_left";
+    case META_FRAME_STATE_TILED_RIGHT:
+      return "tiled_right";
     case META_FRAME_STATE_SHADED:
       return "shaded";
     case META_FRAME_STATE_MAXIMIZED_AND_SHADED:
       return "maximized_and_shaded";
+    case META_FRAME_STATE_TILED_LEFT_AND_SHADED:
+      return "tiled_left_and_shaded";
+    case META_FRAME_STATE_TILED_RIGHT_AND_SHADED:
+      return "tiled_right_and_shaded";
     case META_FRAME_STATE_LAST:
       break;
     }
@@ -6511,8 +6571,8 @@ draw_bg_solid_composite (const MetaTextureSpec *bg,
                          const MetaTextureSpec *fg,
                          double                 alpha,
                          GtkWidget             *widget,
-                         GdkDrawable           *drawable,
-                         const GdkRectangle    *clip,
+                         GdkWindow           *drawable,
+                         const cairo_rectangle_int_t    *clip,
                          MetaTextureDrawMode    mode,
                          double                 xalign,
                          double                 yalign,
@@ -6618,8 +6678,8 @@ draw_bg_gradient_composite (const MetaTextureSpec *bg,
                             const MetaTextureSpec *fg,
                             double                 alpha,
                             GtkWidget             *widget,
-                            GdkDrawable           *drawable,
-                            const GdkRectangle    *clip,
+                            GdkWindow           *drawable,
+                            const cairo_rectangle_int_t    *clip,
                             MetaTextureDrawMode    mode,
                             double                 xalign,
                             double                 yalign,
