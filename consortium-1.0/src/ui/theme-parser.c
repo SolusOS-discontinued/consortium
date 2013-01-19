@@ -4065,7 +4065,8 @@ text_handler (GMarkupParseContext *context,
  * using the filename instead.  The "-1" survives
  * as a fossil.
  */
-#define THEME_SUBDIR "consortium-1"
+#define THEME_SUBDIR                            "consortium-1"
+#define THEME_SUBDIR_LEGACY                     "metacity-1"
 
 /* Highest version of the theme format to
  * look out for.
