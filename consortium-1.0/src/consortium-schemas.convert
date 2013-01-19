@@ -1,3 +1,4 @@
 [org.consort.consortium]
 compositing-manager = /apps/consortium/general/compositing_manager
 reduced-resources = /apps/consortium/general/reduced_resources
+side-by-side-tiling = /apps/consortium/general/side_by_side_tiling

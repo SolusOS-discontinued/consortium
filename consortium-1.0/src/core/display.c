@@ -454,6 +454,8 @@ meta_display_open (void)
   the_display->grab_window = NULL;
   the_display->grab_screen = NULL;
   the_display->grab_resize_popup = NULL;
+  the_display->grab_tile_mode = META_TILE_NONE;
+  the_display->grab_tile_monitor_number = -1;
 
   the_display->grab_edge_resistance_data = NULL;
 
@@ -3266,7 +3268,7 @@ meta_display_begin_grab_op (MetaDisplay *display,
   meta_display_set_grab_op_cursor (display, screen, op, FALSE, grab_xwindow,
                                    timestamp);
 
-  if (!display->grab_have_pointer)
+  if (!display->grab_have_pointer && !grab_op_is_keyboard (op))
     {
       meta_topic (META_DEBUG_WINDOW_OPS,
                   "XGrabPointer() failed\n");
@@ -3293,13 +3295,23 @@ meta_display_begin_grab_op (MetaDisplay *display,
           return FALSE;
         }
     }
-  
+
   display->grab_op = op;
   display->grab_window = window;
   display->grab_screen = screen;
   display->grab_xwindow = grab_xwindow;
   display->grab_button = button;
   display->grab_mask = modmask;
+  if (window)
+    {
+      display->grab_tile_mode = window->tile_mode;
+      display->grab_tile_monitor_number = window->tile_monitor_number;
+    }
+  else
+    {
+      display->grab_tile_mode = META_TILE_NONE;
+      display->grab_tile_monitor_number = -1;
+    }
   display->grab_anchor_root_x = root_x;
   display->grab_anchor_root_y = root_y;
   display->grab_latest_motion_x = root_x;
@@ -3485,6 +3497,11 @@ meta_display_end_grab_op (MetaDisplay *display,
 
   if (display->grab_window != NULL)
     display->grab_window->shaken_loose = FALSE;
+
+  /*if(display->grab_window != NULL && display->grab_window->tile_mode == META_TILE_MAXIMIZED)
+    {
+      display->grab_window->tile_mode = META_TILE_NONE;
+    }*/
   
   if (display->grab_window != NULL &&
       !meta_prefs_get_raise_on_click () &&
@@ -3588,9 +3605,15 @@ meta_display_end_grab_op (MetaDisplay *display,
     }
 #endif /* HAVE_XSYNC */
   
+  /* Hide the tile preview if it exists */
+  if (display->grab_screen->tile_preview)
+    meta_tile_preview_hide (display->grab_screen->tile_preview);
+
   display->grab_window = NULL;
   display->grab_screen = NULL;
   display->grab_xwindow = None;
+  display->grab_tile_mode = META_TILE_NONE;
+  display->grab_tile_monitor_number = -1;
   display->grab_op = META_GRAB_OP_NONE;
 
   if (display->grab_resize_popup)
