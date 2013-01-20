@@ -1,3 +1,9 @@
+consortium (1.0.3) two; urgency=low
+
+  * Fix tooltip and DnD shadow trails (fugly)
+
+ -- Ikey Doherty <ikey@solusos.com>  Sun, 20 Jan 2013 11:19:41 +0000
+
 consortium (1.0.2) two; urgency=low
 
   * Add UXD shadows + side by side tiling 
