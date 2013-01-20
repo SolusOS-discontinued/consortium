@@ -905,12 +905,6 @@ window_has_shadow (MetaCompWindow *cw)
       }
     }
 
-  if (cw->type == META_COMP_WINDOW_MENU ||
-        cw->type == META_COMP_WINDOW_DROP_DOWN_MENU) {
-        meta_verbose ("Window has shadow as it is a menu\n");
-        return TRUE;
-  }
-
   meta_verbose ("Window has no shadow as it fell through\n");
   return FALSE;
 }
