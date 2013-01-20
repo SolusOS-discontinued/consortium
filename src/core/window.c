@@ -6721,13 +6721,13 @@ meta_window_show_menu (MetaWindow *window,
   else
     ops |= META_MENU_OP_MAXIMIZE;
   
-#if 0
+
+  #if 0
   if (window->shaded)
     ops |= META_MENU_OP_UNSHADE;
   else
     ops |= META_MENU_OP_SHADE;
-#endif
-
+  #endif
   ops |= META_MENU_OP_UNSTICK;
   ops |= META_MENU_OP_STICK;
 
