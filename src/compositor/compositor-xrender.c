@@ -905,6 +905,17 @@ window_has_shadow (MetaCompWindow *cw)
       }
     }
 
+  if (cw->type == META_COMP_WINDOW_MENU || cw->type == META_COMP_WINDOW_DROP_DOWN_MENU)
+  {
+        meta_verbose ("Window has shadow because it is a menu\n");
+        return TRUE;
+  }
+
+  if (cw->type == META_COMP_WINDOW_TOOLTIP)
+  {
+        meta_verbose ("Window has shadow because it is a tooltip\n");
+        return TRUE;
+  }
   meta_verbose ("Window has no shadow as it fell through\n");
   return FALSE;
 }
@@ -1569,6 +1580,9 @@ free_win (MetaCompWindow *cw,
       XFixesDestroyRegion (xdisplay, cw->extents);
       cw->extents = None;
     }
+
+  /* Seems to be a bug where shadows don't disappear.. Always damage screen. */
+  damage_screen (cw->screen);
 
   if (destroy) 
     { 
