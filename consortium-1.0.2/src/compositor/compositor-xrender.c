@@ -905,35 +905,6 @@ window_has_shadow (MetaCompWindow *cw)
       }
     }
 
-  /* Never put a shadow around shaped windows */
-  if (cw->shaped) {
-    meta_verbose ("Window has no shadow as it is shaped\n");
-    return FALSE;
-  }
-
-  /* Don't put shadow around DND icon windows */
-  if (cw->type == META_COMP_WINDOW_DND ||
-      cw->type == META_COMP_WINDOW_DESKTOP) {
-    meta_verbose ("Window has no shadow as it is DND or Desktop\n");
-    return FALSE;
-  }
-
-  if (cw->mode != WINDOW_ARGB) {
-    meta_verbose ("Window has shadow as it is not ARGB\n");
-    return TRUE;
-  }
-
-  if (cw->type == META_COMP_WINDOW_MENU || 
-      cw->type == META_COMP_WINDOW_DROP_DOWN_MENU) {
-    meta_verbose ("Window has shadow as it is a menu\n");
-    return TRUE;
-  }
-
-  if (cw->type == META_COMP_WINDOW_TOOLTIP) {
-    meta_verbose ("Window has shadow as it is a tooltip\n");
-    return TRUE;
-  }
-
   meta_verbose ("Window has no shadow as it fell through\n");
   return FALSE;
 }
