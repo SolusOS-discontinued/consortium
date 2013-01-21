@@ -1,3 +1,9 @@
+consortium (1.0.4) two; urgency=low
+
+  * Fix consort-panel support
+
+ -- Ikey Doherty <ikey@solusos.com>  Mon, 21 Jan 2013 22:21:23 +0000
+
 consortium (1.0.3) two; urgency=low
 
   * Fix tooltip and DnD shadow trails (fugly)
