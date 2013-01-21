@@ -2673,10 +2673,10 @@ handle_panel (MetaDisplay    *display,
     {
     /* FIXME: The numbers are wrong */
     case META_KEYBINDING_ACTION_PANEL_MAIN_MENU:
-      action_atom = display->atom__GNOME_PANEL_ACTION_MAIN_MENU;
+      action_atom = display->atom__CONSORT_PANEL_ACTION_MAIN_MENU;
       break;
     case META_KEYBINDING_ACTION_PANEL_RUN_DIALOG:
-      action_atom = display->atom__GNOME_PANEL_ACTION_RUN_DIALOG;
+      action_atom = display->atom__CONSORT_PANEL_ACTION_RUN_DIALOG;
       break;
     default:
       return;
@@ -2684,7 +2684,7 @@ handle_panel (MetaDisplay    *display,
    
   ev.type = ClientMessage;
   ev.window = screen->xroot;
-  ev.message_type = display->atom__GNOME_PANEL_ACTION;
+  ev.message_type = display->atom__CONSORT_PANEL_ACTION;
   ev.format = 32;
   ev.data.l[0] = action_atom;
   ev.data.l[1] = event->xkey.time;

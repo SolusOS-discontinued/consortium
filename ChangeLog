@@ -9893,7 +9893,7 @@ Sun Mar 23 23:04:06 2003  Soeren Sandmann  <sandmann@daimi.au.dk>
 	Take control of the panel's global keybindings. The
 	screenshot utility is hooked up using a special case
 	run_command and the menu and run dialog bindings are
-	done using the _GNOME_PANEL_ACTION ClientMessage
+	done using the _CONSORT_PANEL_ACTION ClientMessage
 	protocol.
 
 	* src/display.[ch]: (meta_display_open): add some atoms.
