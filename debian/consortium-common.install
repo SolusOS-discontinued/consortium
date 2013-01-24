@@ -1,9 +1,0 @@
-usr/share/gnome
-usr/share/locale
-usr/share/man
-usr/share/consortium
-usr/share/themes
-usr/share/gnome-control-center/keybindings
-usr/share/GConf
-usr/share/glib-2.0
-doc/consortium-theme.dtd usr/share/sgml/consortium-common
